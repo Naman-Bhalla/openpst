@@ -78,11 +78,11 @@ void QcSamUnlockWindow::updatePortList()
 
 			log(kLogTypeDebug, logMsg);
 		}
-
-		// if (ui->portListComboBox->size == 1) {
-		// 	log(kLogTypeDebug, "No Samsung devices found");
-		// }
     }
+
+	if (ui->portListComboBox->size == 1) {
+		log(kLogTypeDebug, "[-] No Samsung devices found");
+	}
 }
 
 /**

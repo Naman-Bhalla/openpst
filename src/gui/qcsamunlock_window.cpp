@@ -86,6 +86,8 @@ void QcSamUnlockWindow::updatePortList()
 		log(kLogTypeDebug, "[-] 2. Select DM+MODEM+ADB");
 		log(kLogTypeDebug, "[-] 3. Connect phone to computer");
 		log(kLogTypeDebug, "[-] 4. Press Refresh");
+	} else {
+		ui->portListComboBox->setCurrentIndex(1);
 	}
 }
 
@@ -188,27 +190,25 @@ bool QcSamUnlockWindow::processItem(int item, int sequence)
 */
 void QcSamUnlockWindow::unlockSim()
 {
-	if (efsManager.statfs("/", statResponse) == efsManager.kDmEfsSuccess) {
-
-		if (!processItem(10080, ++sequence)) {
-			log(kLogTypeWarning, "[-] Error removing NV item 10080");
-		}
-
-		if (!processItem(10074, ++sequence)) {
-			log(kLogTypeWarning, "[-] Error removing NV item 10074");
-		}
-
-		if (!processItem(10073, ++sequence)) {
-			log(kLogTypeWarning, "[-] Error removing NV item 10073");
-		}
-	} else {
-		log(kLogTypeError, "[-] Error checking for EFS access");
+	if (!testSecurity()) {
 		goto finish;
 	}
 
+	if (!processItem(10080, ++sequence)) {
+		log(kLogTypeWarning, "[-] Error removing NV item 10080");
+	}
+
+	if (!processItem(10074, ++sequence)) {
+		log(kLogTypeWarning, "[-] Error removing NV item 10074");
+	}
+
+	if (!processItem(10073, ++sequence)) {
+		log(kLogTypeWarning, "[-] Error removing NV item 10073");
+	}
+	
 	try {
 		syncResponse = efsManager.syncNoWait("/");
-
+	
 		QString msg = "[+] EFS sync initiated. Received token ";
 		log(kLogTypeInfo, msg.append(syncResponse.token));
 	} catch (std::exception e) {
@@ -216,10 +216,10 @@ void QcSamUnlockWindow::unlockSim()
 		log(kLogTypeError, msg.append(e.what()));
 		goto finish;
 	}
-
+	
 	try {
 		sequence = 0;
-
+	
 		while (syncMaxRetries > syncRetries) {
 			syncStatusResponse = efsManager.getSyncStatus("/", syncResponse.token, ++sequence);
 			if (syncStatusResponse.status) {
@@ -231,17 +231,47 @@ void QcSamUnlockWindow::unlockSim()
 				syncRetries++;
 			}
 		}
-
+	
 		log(kLogTypeInfo, "[-] Sync Check Error. Device may still have been unlocked. Reboot and insert a different carriers SIM.");
 	} catch (std::exception e) {
 		QString msg = "[-] Error encountered during sync check: ";
 		log(kLogTypeError, msg.append(e.what()));
 		goto finish;
 	}
-
+	
 	finish:
 		disconnectPort();
 		return;
+}
+
+/**
+* @brief QcSamUnlockWindow::testSecurity
+*/
+bool QcSamUnlockWindow::testSecurity()
+{
+	bool success = false;
+
+	if (efsManager.statfs("/", statResponse) == efsManager.kDmEfsError) {
+		log(kLogTypeWarning, "[-] Bad Response. Attempting Security Bypass");
+
+		string passwords[] = { "01F2030F5F678FF9", "2010031619780721", "2013051320130909", "2009031920090615", "2012112120131219" };
+		for (const string &password : passwords) {
+			if (port.sendPassword(password)) {
+				success = true;
+			}
+		}
+
+		if (success) {
+			log(kLogTypeInfo, "[+] Security Bypass Successful");
+		} else {
+			log(kLogTypeError, "[-] Security Bypass Failure: Device Not Supported");
+		}
+	} else {
+		success = true;
+		log(kLogTypeInfo, "[+] EFS Access Available");
+	}
+
+	return success;
 }
 
 /**

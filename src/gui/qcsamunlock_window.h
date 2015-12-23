@@ -120,6 +120,11 @@ namespace OpenPST {
 		/**
 		* @brief
 		*/
+		bool testSecurity();
+
+		/**
+		* @brief
+		*/
 		void log(const char* message);
 
 		/**

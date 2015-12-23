@@ -80,8 +80,12 @@ void QcSamUnlockWindow::updatePortList()
 		}
     }
 
-	if (ui->portListComboBox->size == 1) {
-		log(kLogTypeDebug, "[-] No Samsung devices found");
+	if (ui->portListComboBox->count() == 1) {
+		log(kLogTypeDebug, "[-] No Samsung Phones Found");
+		log(kLogTypeDebug, "[-] 1. Dial *#0808#");
+		log(kLogTypeDebug, "[-] 2. Select DM+MODEM+ADB");
+		log(kLogTypeDebug, "[-] 3. Connect phone to computer");
+		log(kLogTypeDebug, "[-] 4. Press Refresh");
 	}
 }
 

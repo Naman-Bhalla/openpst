@@ -92,9 +92,10 @@ bool QcdmSerial::sendPassword(std::string password)
 		throw QcdmInvalidArgument("Password must be 16 digits");
 	}
 
-	return false;
-	/*
-    long data = std::stoul(password, nullptr, 16);
+	QcdmPasswordRequest packet;
+	QcdmPasswordResponse* response;
+
+    long long data = std::stoull(password, nullptr, 16);
 
     #ifdef _WIN32
         data = _byteswap_uint64(data);
@@ -102,27 +103,13 @@ bool QcdmSerial::sendPassword(std::string password)
         data = __builtin_bswap64(data);
     #endif
 
-    QcdmPasswordRequest packet;
-    memcpy(&packet.password, &data, sizeof(data));
+    std::memcpy(&packet.password, &data, sizeof(data));
 
-    lastTxSize = write((uint8_t*)&packet, sizeof(packet));
+	sendCommand(packet.command, reinterpret_cast<uint8_t*>(&packet), sizeof(packet));
 
-    if (!lastTxSize) {
-        printf("Attempted to write to device but 0 bytes were written\n");
-        return DIAG_CMD_TX_FAIL;
-    }
+    response = (QcdmPasswordResponse*)buffer;
 
-    lastRxSize = read(buffer, DIAG_MAX_PACKET_SIZE);
-
-    if (!lastRxSize) {
-        printf("Device did not respond\n");
-        return DIAG_CMD_RX_FAIL;
-    }
-
-    QcdmPasswordResponse* rxPacket = (QcdmPasswordResponse*)buffer;
-
-    return rxPacket->status;
-	*/
+    return response->status == 1;
 }
 
 void QcdmSerial::switchToDload()

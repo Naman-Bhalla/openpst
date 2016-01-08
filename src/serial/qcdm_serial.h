@@ -147,6 +147,8 @@ namespace OpenPST {
             */
 			bool writeNV(uint16_t itemId, uint8_t* data, size_t size);
 
+			bool QcdmSerial::writeNvSubsys(uint16_t itemId, uint8_t* data, size_t size);
+
 			QcdmNvPeekResponse peekNV(uint32_t address, uint8_t size);
 
 			void switchToDload();
@@ -155,19 +157,14 @@ namespace OpenPST {
 			   
             bool sendLgNvUnlock();  
 
-			bool getLgSpc();
-
-            
+			QcdmLgSpcResponse getLgSpc();
 
             int getErrorLog();
             int clearErrorLog();
 
-
 			std::string lastError;
             uint8_t buffer[DIAG_MAX_PACKET_SIZE];
-            size_t lastRxSize,
-                   lastTxSize;
-
+            size_t lastRxSize, lastTxSize;
             
 			void sendCommand(uint8_t command, bool validate = true);
 			void sendCommand(uint8_t command, uint8_t* data, size_t size, bool validate = true);

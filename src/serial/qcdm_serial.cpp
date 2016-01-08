@@ -148,16 +148,39 @@ QcdmNvResponse QcdmSerial::readNV(uint16_t itemId)
 }
 
 
-bool QcdmSerial::writeNV(uint16_t itemId, uint8_t* data, size_t size)
+bool QcdmSerial::writeNvSubsys(uint16_t itemId, uint8_t* data, size_t size)
 {
-	QcdmNvRequest packet;
-	
+	QcdmSubsysHeader header = {};
+	QcdmNvSubsysRequest packet = {};
+
 	if (size > DIAG_NV_ITEM_SIZE) {
 		throw QcdmInvalidArgument("Data is larger than DIAG_NV_ITEM_SIZE");
 	}
 
-    packet.command	= DIAG_NV_WRITE_F;
+	header.command = DIAG_SUBSYS_CMD_F;
+	header.subsysId = DIAG_SUBSYS_NV;
+	header.subsysCommand = DIAG_SUBSYS_NV_WRITE_EXT_F;
+
+	packet.header = header;
+
     packet.nvItem	= itemId;
+	memcpy(&packet.data, data, size);
+
+	sendCommand(NULL, reinterpret_cast<uint8_t*>(&packet), sizeof(packet));
+
+	return true;
+}
+
+bool QcdmSerial::writeNV(uint16_t itemId, uint8_t* data, size_t size)
+{
+	QcdmNvRequest packet;
+
+	if (size > DIAG_NV_ITEM_SIZE) {
+		throw QcdmInvalidArgument("Data is larger than DIAG_NV_ITEM_SIZE");
+	}
+
+	packet.command = DIAG_NV_WRITE_F;
+	packet.nvItem = itemId;
 	memcpy(&packet.data, data, size);
 
 	sendCommand(packet.command, reinterpret_cast<uint8_t*>(&packet), sizeof(packet));

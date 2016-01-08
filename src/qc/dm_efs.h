@@ -14,7 +14,7 @@
 
 #include "qc/dm.h"
 
-#define DIAG_EFS_DEFAULT_WINDOW_SIZE  0x100000
+#define DIAG_EFS_DEFAULT_WINDOW_SIZE      0x100000
 #define DIAG_EFS_DEFAULT_WINDOW_BYTE_SIZE 0x100000
 
 #define DIAG_EFS_VERSION     0x0001
@@ -22,63 +22,63 @@
 #define DIAG_EFS_MAX_VERSION 0x0001
 
 enum DIAG_EFS_COMMAND {
-    DIAG_EFS_HELLO = 0,  // Parameter negotiation packet               
-    DIAG_EFS_QUERY = 1,  // Send information about EFS2 params         
-    DIAG_EFS_OPEN = 2,  // Open a file                                
-    DIAG_EFS_CLOSE = 3,  // Close a file                               
-    DIAG_EFS_READ = 4,  // Read a file                                
-    DIAG_EFS_WRITE = 5,  // Write a file                               
-    DIAG_EFS_SYMLINK = 6,  // Create a symbolic link                     
-    DIAG_EFS_READLINK = 7,  // Read a symbolic link                       
-    DIAG_EFS_UNLINK = 8,  // Remove a symbolic link or file             
-    DIAG_EFS_MKDIR = 9,  // Create a directory                         
-    DIAG_EFS_RMDIR = 10,  // Remove a directory                         
-    DIAG_EFS_OPENDIR = 11,  // Open a directory for reading               
-    DIAG_EFS_READDIR = 12,  // Read a directory                           
-    DIAG_EFS_CLOSEDIR = 13,  // Close an open directory                    
-    DIAG_EFS_RENAME = 14,  // Rename a file or directory                 
-    DIAG_EFS_STAT = 15,  // Obtain information about a named file      
-    DIAG_EFS_LSTAT = 16,  // Obtain information about a symbolic link   
-    DIAG_EFS_FSTAT = 17,  // Obtain information about a file descriptor 
-    DIAG_EFS_CHMOD = 18,  // Change file permissions                    
-    DIAG_EFS_STATFS = 19,  // Obtain file system information             
-    DIAG_EFS_ACCESS = 20,  // Check a named file for accessibility       
-    DIAG_EFS_DEV_INFO = 21,  // Get flash device info             
-    DIAG_EFS_FACT_IMAGE_START = 22,  // Start data output for Factory Image
-    DIAG_EFS_FACT_IMAGE_READ = 23,  // Get data for Factory Image         
-    DIAG_EFS_FACT_IMAGE_END = 24,  // End data output for Factory Image  
-    DIAG_EFS_PREP_FACT_IMAGE = 25,  // Prepare file system for image dump 
-    DIAG_EFS_PUT_DEPRECATED = 26,  // Write an EFS item file             
-    DIAG_EFS_GET_DEPRECATED = 27,  // Read an EFS item file              
-    DIAG_EFS_ERROR = 28,  // Semd an EFS Error Packet back through DIAG 
-    DIAG_EFS_EXTENDED_INFO = 29,  // Get Extra information.                
-    DIAG_EFS_CHOWN = 30,  // Change ownership                      
-    DIAG_EFS_BENCHMARK_START_TEST = 31,  // Start Benchmark               
-    DIAG_EFS_BENCHMARK_GET_RESULTS = 32,  // Get Benchmark Report          
-    DIAG_EFS_BENCHMARK_INIT = 33,  // Init/Reset Benchmark          
-    DIAG_EFS_SET_RESERVATION = 34,  // Set group reservation         
-    DIAG_EFS_SET_QUOTA = 35,  // Set group quota               
-    DIAG_EFS_GET_GROUP_INFO = 36,  // Retrieve Q&R values           
-    DIAG_EFS_DELTREE = 37,  // Delete a Directory Tree       
-    DIAG_EFS_PUT = 38,  // Write a EFS item file in order
-    DIAG_EFS_GET = 39,  // Read a EFS item file in order 
-    DIAG_EFS_TRUNCATE = 40,  // Truncate a file by the name   
-    DIAG_EFS_FTRUNCATE = 41,  // Truncate a file by a descriptor 
-    DIAG_EFS_STATVFS_V2 = 42,  // Obtains extensive file system info 
-    DIAG_EFS_MD5SUM = 43,  // Calculate md5 hash of a file  
-    DIAG_EFS_HOTPLUG_FORMAT = 44,  // Format a Connected device 
-    DIAG_EFS_SHRED = 45,  // Shred obsolete file content. 
-    DIAG_EFS_SET_IDLE_DEV_EVT_DUR = 46,  // Idle_dev_evt_dur value in mins 
-    DIAG_EFS_HOTPLUG_DEVICE_INFO = 47,  // get the hotplug device info.  
-    DIAG_EFS_SYNC_NO_WAIT = 48,  // non-blocking sync of remotefs device 
-    DIAG_EFS_SYNC_GET_STATUS = 49,  // query previously issued sync status 
-    DIAG_EFS_TRUNCATE64 = 50,  // Truncate a file by the name.        
-    DIAG_EFS_FTRUNCATE64 = 51,  // Truncate a file by a descriptor.    
-    DIAG_EFS_LSEEK64 = 52,  // Seek to requested file offset.      
-    DIAG_EFS_MAKE_GOLDEN_COPY = 53,  // Make golden copy for Remote Storage
-    DIAG_EFS_FILESYSTEM_IMAGE_OPEN = 54,  //Open FileSystem Image extraction
-    DIAG_EFS_FILESYSTEM_IMAGE_READ = 55,  // Read File System Image.        
-    DIAG_EFS_FILESYSTEM_IMAGE_CLOSE = 56,  // Close File System Image.      
+    DIAG_EFS_HELLO                  = 0x00, // 0  - Parameter negotiation packet               
+    DIAG_EFS_QUERY                  = 0x01, // 1  - Send information about EFS2 params         
+    DIAG_EFS_OPEN                   = 0x02, // 2  - Open a file                                
+    DIAG_EFS_CLOSE                  = 0x03, // 3  - Close a file                               
+    DIAG_EFS_READ                   = 0x04, // 4  - Read a file                                
+    DIAG_EFS_WRITE                  = 0x05, // 5  - Write a file                               
+    DIAG_EFS_SYMLINK                = 0x06, // 6  - Create a symbolic link                     
+    DIAG_EFS_READLINK               = 0x07, // 7  - Read a symbolic link                       
+    DIAG_EFS_UNLINK                 = 0x08, // 8  - Remove a symbolic link or file             
+    DIAG_EFS_MKDIR                  = 0x09, // 9  - Create a directory                         
+    DIAG_EFS_RMDIR                  = 0x0A, // 10 - Remove a directory                         
+    DIAG_EFS_OPENDIR                = 0x0B, // 11 - Open a directory for reading               
+    DIAG_EFS_READDIR                = 0x0C, // 12 - Read a directory                           
+    DIAG_EFS_CLOSEDIR               = 0x0D, // 13 - Close an open directory                    
+    DIAG_EFS_RENAME                 = 0x0E, // 14 - Rename a file or directory                 
+    DIAG_EFS_STAT                   = 0x0F, // 15 - Obtain information about a named file      
+    DIAG_EFS_LSTAT                  = 0x10, // 16 - Obtain information about a symbolic link   
+    DIAG_EFS_FSTAT                  = 0x11, // 17 - Obtain information about a file descriptor 
+    DIAG_EFS_CHMOD                  = 0x12, // 18 - Change file permissions                    
+    DIAG_EFS_STATFS                 = 0x13, // 19 - Obtain file system information             
+    DIAG_EFS_ACCESS                 = 0x14, // 20 - Check a named file for accessibility       
+    DIAG_EFS_DEV_INFO               = 0x15, // 21 - Get flash device info             
+    DIAG_EFS_FACT_IMAGE_START       = 0x16, // 22 - Start data output for Factory Image
+    DIAG_EFS_FACT_IMAGE_READ        = 0x17, // 23 - Get data for Factory Image         
+    DIAG_EFS_FACT_IMAGE_END         = 0x18, // 24 - End data output for Factory Image  
+    DIAG_EFS_PREP_FACT_IMAGE        = 0x19, // 25 - Prepare file system for image dump 
+    DIAG_EFS_PUT_DEPRECATED         = 0x1A, // 26 - Write an EFS item file             
+    DIAG_EFS_GET_DEPRECATED         = 0x1B, // 27 - Read an EFS item file              
+    DIAG_EFS_ERROR                  = 0x1C, // 28 - Semd an EFS Error Packet back through DIAG 
+    DIAG_EFS_EXTENDED_INFO          = 0x1D, // 29 - Get Extra information.                
+    DIAG_EFS_CHOWN                  = 0x1E, // 30 - Change ownership                      
+    DIAG_EFS_BENCHMARK_START_TEST   = 0x1F, // 31 - Start Benchmark               
+    DIAG_EFS_BENCHMARK_GET_RESULTS  = 0x20, // 32 - Get Benchmark Report          
+    DIAG_EFS_BENCHMARK_INIT         = 0x21, // 33 - Init/Reset Benchmark          
+    DIAG_EFS_SET_RESERVATION        = 0x22, // 34 - Set group reservation         
+    DIAG_EFS_SET_QUOTA              = 0x23, // 35 - Set group quota               
+    DIAG_EFS_GET_GROUP_INFO         = 0x24, // 36 - Retrieve Q&R values           
+    DIAG_EFS_DELTREE                = 0x25, // 37 - Delete a Directory Tree       
+    DIAG_EFS_PUT                    = 0x26, // 38 - Write a EFS item file in order
+    DIAG_EFS_GET                    = 0x27, // 39 - Read a EFS item file in order 
+    DIAG_EFS_TRUNCATE               = 0x28, // 40 - Truncate a file by the name   
+    DIAG_EFS_FTRUNCATE              = 0x29, // 41 - Truncate a file by a descriptor 
+    DIAG_EFS_STATVFS_V2             = 0x2A, // 42 - Obtains extensive file system info 
+    DIAG_EFS_MD5SUM                 = 0x2B, // 43 - Calculate md5 hash of a file  
+    DIAG_EFS_HOTPLUG_FORMAT         = 0x2C, // 44 - Format a Connected device 
+    DIAG_EFS_SHRED                  = 0x2D, // 45 - Shred obsolete file content. 
+    DIAG_EFS_SET_IDLE_DEV_EVT_DUR   = 0x2E, // 46 - Idle_dev_evt_dur value in mins 
+    DIAG_EFS_HOTPLUG_DEVICE_INFO    = 0x2F, // 47 - get the hotplug device info.  
+    DIAG_EFS_SYNC_NO_WAIT           = 0x30, // 48 - non-blocking sync of remotefs device 
+    DIAG_EFS_SYNC_GET_STATUS        = 0x31, // 49 - query previously issued sync status 
+    DIAG_EFS_TRUNCATE64             = 0x32, // 50 - Truncate a file by the name.        
+    DIAG_EFS_FTRUNCATE64            = 0x33, // 51 - Truncate a file by a descriptor.    
+    DIAG_EFS_LSEEK64                = 0x34, // 52 - Seek to requested file offset.      
+    DIAG_EFS_MAKE_GOLDEN_COPY       = 0x35, // 53 - Make golden copy for Remote Storage
+    DIAG_EFS_FILESYSTEM_IMAGE_OPEN  = 0x36, // 54 - Open FileSystem Image extraction
+    DIAG_EFS_FILESYSTEM_IMAGE_READ  = 0x37, // 55 - Read File System Image.        
+    DIAG_EFS_FILESYSTEM_IMAGE_CLOSE = 0x38  // 56 - Close File System Image.      
 };
 
 enum DIAG_EFS_ERROR {
@@ -93,15 +93,15 @@ enum DIAG_EFS_ERROR {
     DIAG_EFS_TOO_MANY_OPEN_FILES = 0x09,
     DIAG_EFS_UNKNOWN_FILETYPE    = 0x0A,
     DIAG_EFS_NOT_NAND_FLASH      = 0x0B,
-    DIAG_EFS_UNAVAILABLE_INFO    = 0x0C,
+    DIAG_EFS_UNAVAILABLE_INFO    = 0x0C
 };
 
 
 enum DIAG_EFS_FILE_TYPES {
-    DIAG_EFS_FILE_TYPE_FILE         = 0x00,
-    DIAG_EFS_FILE_TYPE_DIR          = 0x01,
-    DIAG_EFS_FILE_TYPE_LINK         = 0x02,
-    DIAG_EFS_FILE_TYPE_IMMOVABLE    = 0x03,
+    DIAG_EFS_FILE_TYPE_FILE      = 0x00,
+    DIAG_EFS_FILE_TYPE_DIR       = 0x01,
+    DIAG_EFS_FILE_TYPE_LINK      = 0x02,
+    DIAG_EFS_FILE_TYPE_IMMOVABLE = 0x03
 };
 
 enum DIAG_EFS_DEVICE_TYPES {
@@ -110,18 +110,18 @@ enum DIAG_EFS_DEVICE_TYPES {
 };
 
 enum DIAG_EFS_FILESYSTEM_IMAGE_TYPES {
-    DIAG_EFS_FILESYSTEM_IMAGE_TAR = 0,  
-    DIAG_EFS_FILESYSTEM_IMAGE_ZIP = 1
+    DIAG_EFS_FILESYSTEM_IMAGE_TAR = 0x00,  
+    DIAG_EFS_FILESYSTEM_IMAGE_ZIP = 0x01
 };
 
 PACKED(typedef struct QcdmEfsHelloRequest{
     QcdmSubsysHeader header;
-    uint32_t targetPacketWindowSize;        // Window size in packets for sends from phone
-    uint32_t targetPacketWindowByteSize;    // Window size in bytes for sends from phone
-    uint32_t hostPacketWindowSize;          // Window size in packets for sends from host
-    uint32_t hostPacketWindowByteSize;      // Window size in bytes for sends from host
-    uint32_t dirIteratorWindowSize;         // Window size in packets for dir iteration
-    uint32_t dirIteratorWindowByteSize;     // Window size in bytes for dir iteration
+    uint32_t targetPacketWindowSize;     // Window size in packets for sends from phone
+    uint32_t targetPacketWindowByteSize; // Window size in bytes for sends from phone
+    uint32_t hostPacketWindowSize;       // Window size in packets for sends from host
+    uint32_t hostPacketWindowByteSize;   // Window size in bytes for sends from host
+    uint32_t dirIteratorWindowSize;      // Window size in packets for dir iteration
+    uint32_t dirIteratorWindowByteSize;  // Window size in bytes for dir iteration
     uint32_t version;         
     uint32_t minVersion;     
     uint32_t maxVersion;     
@@ -130,12 +130,12 @@ PACKED(typedef struct QcdmEfsHelloRequest{
 
 PACKED(typedef struct QcdmEfsHelloResponse{
     QcdmSubsysHeader header;
-    uint32_t targetPacketWindowSize;        // Window size in packets for sends from phone
-    uint32_t targetPacketWindowByteSize;    // Window size in bytes for sends from phone
-    uint32_t hostPacketWindowSize;          // Window size in packets for sends from host
-    uint32_t hostPacketWindowByteSize;      // Window size in bytes for sends from host
-    uint32_t dirIteratorWindowSize;         // Window size in packets for dir iteration
-    uint32_t dirIteratorWindowByteSize;     // Window size in bytes for dir iteration
+    uint32_t targetPacketWindowSize;     // Window size in packets for sends from phone
+    uint32_t targetPacketWindowByteSize; // Window size in bytes for sends from phone
+    uint32_t hostPacketWindowSize;       // Window size in packets for sends from host
+    uint32_t hostPacketWindowByteSize;   // Window size in bytes for sends from host
+    uint32_t dirIteratorWindowSize;      // Window size in packets for dir iteration
+    uint32_t dirIteratorWindowByteSize;  // Window size in bytes for dir iteration
     uint32_t version;
     uint32_t minVersion;
     uint32_t maxVersion;

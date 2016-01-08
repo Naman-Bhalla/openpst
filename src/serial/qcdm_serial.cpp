@@ -194,29 +194,32 @@ bool QcdmSerial::sendHtcNvUnlock()
 {
 	uint8_t packet[] = { DIAG_SPC_F, 0x74, 0x64, 0x77, 0x61, 0x6F, 0x70 };
 
-	sendCommand(NULL, packet, sizeof(packet));
+	sendCommand(NULL, packet, sizeof(packet), false);
 	
     return true;
 }
 
 bool QcdmSerial::sendLgNvUnlock()
 {
-
 	uint8_t packet[] = { 0x33, 0x7D, 0x5F };
 
-	sendCommand(NULL, packet, sizeof(packet));
+	sendCommand(NULL, packet, sizeof(packet), false);
 
 	return true;
 }
 
 
-bool QcdmSerial::getLgSpc()
+QcdmLgSpcResponse QcdmSerial::getLgSpc()
 {
-	unsigned char packet[] = { 0x11, 0x17, 0x0, 0x08 };
+	QcdmLgSpcResponse response = {};
+	
+	QcdmLgSpcRequest packet[] = { 0x11, 0x17, 0x0, 0x08 };
 
-	sendCommand(NULL, packet, sizeof(packet));
+	sendCommand(NULL, reinterpret_cast<uint8_t*>(&packet), sizeof(packet), false);
 
-	return true;
+	std::memcpy(&response, buffer, sizeof(QcdmLgSpcResponse));
+
+	return response;
 }
 
 void QcdmSerial::sendCommand(uint8_t command, bool validate)

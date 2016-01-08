@@ -1,4 +1,4 @@
-/**
+ /**
 * LICENSE PLACEHOLDER
 *
 * @file qcsamunlock_window.cpp
@@ -82,10 +82,13 @@ void QcSamUnlockWindow::updatePortList()
 
 	if (ui->portListComboBox->count() == 1) {
 		log(kLogTypeDebug, "[-] No Samsung Phones Found");
+		log(kLogTypeDebug, "[-] ----------------------------");
 		log(kLogTypeDebug, "[-] 1. Dial *#0808#");
-		log(kLogTypeDebug, "[-] 2. Select DM+MODEM+ADB");
-		log(kLogTypeDebug, "[-] 3. Connect phone to computer");
+		log(kLogTypeDebug, "[-] 2. Select DM + MODEM + ADB");
+		log(kLogTypeDebug, "[-] 3. Connect Phone to Computer");
 		log(kLogTypeDebug, "[-] 4. Press Refresh");
+		log(kLogTypeDebug, "[-] ----------------------------");
+		log(kLogTypeDebug, "[-] Set to MTP After Unlocked");
 	} else {
 		ui->portListComboBox->setCurrentIndex(1);
 	}
@@ -190,29 +193,34 @@ bool QcSamUnlockWindow::processItem(int item, int sequence)
 */
 void QcSamUnlockWindow::unlockSim()
 {
+	int removeFailCount = 0;
+
 	if (!testSecurity()) {
 		goto finish;
 	}
 
 	if (!processItem(10080, ++sequence)) {
 		log(kLogTypeWarning, "[-] Error removing NV item 10080");
+		removeFailCount++;
 	}
 
 	if (!processItem(10074, ++sequence)) {
 		log(kLogTypeWarning, "[-] Error removing NV item 10074");
+		removeFailCount++;
 	}
 
 	if (!processItem(10073, ++sequence)) {
 		log(kLogTypeWarning, "[-] Error removing NV item 10073");
+		removeFailCount++;
 	}
 	
 	try {
 		syncResponse = efsManager.syncNoWait("/");
 	
-		QString msg = "[+] EFS sync initiated. Received token ";
+		QString msg = "[+] EFS Sync Initiated. Received token: ";
 		log(kLogTypeInfo, msg.append(syncResponse.token));
 	} catch (std::exception e) {
-		QString msg = "[-] Error encountered initiating EFS sync: Error: ";
+		QString msg = "[-] EFS Sync Error: ";
 		log(kLogTypeError, msg.append(e.what()));
 		goto finish;
 	}
@@ -224,7 +232,12 @@ void QcSamUnlockWindow::unlockSim()
 			syncStatusResponse = efsManager.getSyncStatus("/", syncResponse.token, ++sequence);
 			if (syncStatusResponse.status) {
 				log(kLogTypeInfo, "[+] EFS Sync Complete");
-				log(kLogTypeInfo, "[+] SUCCESS. Reboot device and insert a different carriers SIM.");
+				if (removeFailCount > 2) {
+					log(kLogTypeDebug, "[+] Finished. Phone is either already unlocked or not supported");
+				} else {
+					log(kLogTypeInfo, "[+] Finished. Unlock successful");
+				}
+				
 				goto finish;
 			} else {
 				sleep(1000); // wait and check again
@@ -232,15 +245,17 @@ void QcSamUnlockWindow::unlockSim()
 			}
 		}
 	
-		log(kLogTypeInfo, "[-] Sync Check Error. Device may still have been unlocked. Reboot and insert a different carriers SIM.");
+		log(kLogTypeInfo, "[-] EFS Sync Check Error. Phone may still have been unlocked. Reboot and insert a different carriers SIM");
 	} catch (std::exception e) {
-		QString msg = "[-] Error encountered during sync check: ";
+		QString msg = "[-] EFS Sync Check Error: ";
 		log(kLogTypeError, msg.append(e.what()));
 		goto finish;
 	}
 	
 	finish:
 		disconnectPort();
+		log(kLogTypeDebug, "[+] ------------------------------------------------------------");
+		log(kLogTypeDebug, "[+] Select MTP to restore phone to default USB mode");
 		return;
 }
 
@@ -258,6 +273,7 @@ bool QcSamUnlockWindow::testSecurity()
 		for (const string &password : passwords) {
 			if (port.sendPassword(password)) {
 				success = true;
+				break;
 			}
 		}
 
@@ -303,7 +319,23 @@ void QcSamUnlockWindow::clearLog()
 */
 void QcSamUnlockWindow::saveLog() 
 {
-    log(kLogTypeWarning, "[-] Not Implemented Yet");
+	QString now = QDateTime::currentDateTime().toString(Qt::ISODate);
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), now.append("_qcsamunlock"), tr("*.txt"));
+
+	if (!fileName.length()) {
+		return;
+	}
+
+	if (!fileName.endsWith(".txt")) {
+		fileName.append(".txt");
+	}
+
+	QFile file(fileName);
+	if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+		QTextStream stream(&file);
+		stream << now << endl;
+		stream << ui->log->toPlainText() << endl;
+	}
 }
 
 /**

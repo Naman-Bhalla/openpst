@@ -132,6 +132,27 @@ bool QcdmSerial::setPhoneMode(QcdmPhoneMode mode)
 	return response->status;
 }
 
+QcdmNvSubsysResponse QcdmSerial::readNvSubsys(uint16_t itemId)
+{
+	QcdmNvSubsysResponse response = {};
+	QcdmSubsysHeader header = {};
+	QcdmNvSubsysRequest packet = {};
+
+	header.command = DIAG_SUBSYS_CMD_F;
+	header.subsysId = DIAG_SUBSYS_NV;
+	header.subsysCommand = DIAG_SUBSYS_NV_READ_EXT_F;
+
+	packet.header = header;
+
+	packet.nvItem = itemId;
+
+	sendCommand(NULL, reinterpret_cast<uint8_t*>(&packet), sizeof(packet));
+
+	std::memcpy(&response, buffer, sizeof(QcdmNvResponse));
+
+	return response;
+}
+
 QcdmNvResponse QcdmSerial::readNV(uint16_t itemId)
 {
 	QcdmNvResponse response = {};

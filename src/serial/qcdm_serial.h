@@ -147,6 +147,8 @@ namespace OpenPST {
             */
 			bool writeNV(uint16_t itemId, uint8_t* data, size_t size);
 
+			QcdmNvSubsysResponse QcdmSerial::readNvSubsys(uint16_t itemId);
+
 			bool QcdmSerial::writeNvSubsys(uint16_t itemId, uint8_t* data, size_t size);
 
 			QcdmNvPeekResponse peekNV(uint32_t address, uint8_t size);

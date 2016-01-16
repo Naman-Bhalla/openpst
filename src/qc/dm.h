@@ -424,6 +424,14 @@ PACKED(typedef struct QcdmNvSubsysRequest{
 	uint8_t data[DIAG_NV_ITEM_SIZE];
 }) QcdmNvSubsysRequest;
 
+PACKED(typedef struct QcdmNvSubsysResponse
+{
+	QcdmSubsysHeader header;
+	uint16_t nvItem;
+	uint16_t padding;
+	uint8_t data[DIAG_NV_ITEM_SIZE];
+}) QcdmNvSubsysResponse;
+
 
 /**
 * Feature Query

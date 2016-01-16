@@ -72,6 +72,9 @@
     <ClCompile Include="..\src\util\meid.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\serial\laf_serial.cpp">
+      <Filter>Source Files\serial</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\serial\hdlc_serial.h">
@@ -139,6 +142,9 @@
     </ClInclude>
     <ClInclude Include="..\src\util\meid.h">
       <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\serial\laf_serial.h">
+      <Filter>Header Files\serial</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -25,6 +25,7 @@
 #include <QListWidget>
 #include <QtXml>
 #include "ui_qcsamunlock_window.h"
+#include "serial/laf_serial.h"
 #include "serial/qcdm_serial.h"
 #include "include/definitions.h"
 #include "util/sleep.h"
@@ -43,16 +44,48 @@ namespace OpenPST {
 	{
 		Q_OBJECT
 
-		enum LogType {
+		enum PortType
+		{
+			kPortTypeLaf = 0,
+			kPortTypeQcdm = 1
+		};
+
+		enum LogType
+		{
 			kLogTypeError = 1,
 			kLogTypeWarning = 2,
 			kLogTypeInfo = 3,
 			kLogTypeDebug = 4
 		};
 
+		enum SpcReadType
+		{
+			kSpcReadTypeNv = 0,
+			kSpcReadTypeEfs = 1,
+			kSpcReadTypeEfsForceWrite = 2,
+			kSpcReadTypeHtc = 3,
+			kSpcReadTypeLg = 4,
+			kSpcReadTypeSubsys = 5
+		};
+
+		enum ImeiMeidMethod
+		{
+			kImeiMeidMethodNv = 0,
+			kImeiMeidMethodEfs = 1,
+			kImeiMeidMethodEfsForceWrite = 2,
+			kImeiMeidMethodSubsys = 3
+		};
+
+		enum SamsungSimUnlockType
+		{
+			kSamsungSimUnlockTypeEfs    = 0,
+			kSamsungSimUnlockTypeNvData = 1
+		};
+
 	public:
 		Ui::QcSamUnlockWindow* ui;
-		QcdmSerial port;
+		LafSerial lafPort;
+		QcdmSerial qcdmPort;
 		serial::PortInfo currentPort;
 		DmEfsManager efsManager;
 
@@ -75,12 +108,12 @@ namespace OpenPST {
 		/**
 		* @brief
 		*/
-		void connectPort();
+		void connectPort(int portType);
 
 		/**
 		* @brief
 		*/
-		void disconnectPort();
+		void disconnectPort(int portType);
 
 		/**
 		* @brief
@@ -90,16 +123,9 @@ namespace OpenPST {
 		/**
 		* @brief
 		*/
-		void saveLog();
-
-		/**
-		* @brief
-		*/
-		void About();
+		void saveLog(QString task);
 
 	private:
-		AboutDialog* aboutDialog;
-
 		QcdmEfsStatfsResponse        statResponse;
 		QcdmEfsSyncResponse          syncResponse;
 		QcdmEfsGetSyncStatusResponse syncStatusResponse;
@@ -110,12 +136,22 @@ namespace OpenPST {
 		/**
 		* @brief
 		*/
+		QString readSpcNv();
+
+		/**
+		* @brief
+		*/
+		QString readSpcEfs();
+
+		/**
+		* @brief
+		*/
 		bool processItem(int item, int sequence);
 
 		/**
 		* @brief
 		*/
-		void unlockSim();
+		void samsungEfsSimUnlock();
 
 		/**
 		* @brief
@@ -125,22 +161,99 @@ namespace OpenPST {
 		/**
 		* @brief
 		*/
-		void log(const char* message);
-
-		/**
-		* @brief
-		*/
-		void log(int type, const char* message);
-
-		/**
-		* @brief
-		*/
-		void log(int type, std::string message);
-
-		/**
-		* @brief
-		*/
 		void log(int type, QString message);
+
+		/**
+		* @brief
+		*/
+		void logAddEmptyLine();
+
+	private slots:
+
+		/**
+		* @brief
+		*/
+		void qualcommReadAll();
+
+		/**
+		* @brief
+		*/
+		void readImei();
+
+		/**
+		* @brief
+		*/
+		void qualcommReadImei();
+
+		/**
+		* @brief
+		*/
+		void writeImei();
+
+		/**
+		* @brief
+		*/
+		void readMeid();
+
+		/**
+		* @brief
+		*/
+		void qualcommReadMeid();
+
+		/**
+		* @brief
+		*/
+		void writeMeid();
+
+		/**
+		* @brief
+		*/
+		void readSpc();
+
+		/**
+		* @brief
+		*/
+		void qualcommReadSpc();
+
+		/**
+		* @brief
+		*/
+		void writeSpc();
+
+		/**
+		* @brief
+		*/
+		void readSubscription();
+
+		/**
+		* @brief
+		*/
+		void qualcommReadSubscription();
+
+		/**
+		* @brief
+		*/
+		void writeSubscription();
+
+		/**
+		* @brief
+		*/
+		void samsungSimUnlock();
+
+		/**
+		* @brief
+		*/
+		void lgSprintSimUnlock();
+
+		/**
+		* @brief
+		*/
+		void lgRemovePasscode();
+
+		/**
+		* @brief
+		*/
+		void lgRemoveFrp();
 	};
 
 }

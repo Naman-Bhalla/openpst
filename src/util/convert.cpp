@@ -43,7 +43,7 @@ std::string bytesToHex(unsigned char* input, int size, bool byteswap) {
 
   if (byteswap) {
     for (int i = size; i >= 0; i--) {
-        char buffer[2];
+		char buffer[8];
 #ifdef _WIN32
         sprintf_s(buffer, "%02x", input[i]);
 #else
@@ -53,7 +53,7 @@ std::string bytesToHex(unsigned char* input, int size, bool byteswap) {
     }
   } else {
     for (int i = 0; i < size; i++) {
-        char buffer[2];
+        char buffer[8];
         sprintf(buffer, "%02x", input[i]);
         result.append(buffer);
     }
@@ -63,7 +63,7 @@ std::string bytesToHex(unsigned char* input, int size, bool byteswap) {
 }
 
 std::string min1Decode(unsigned char input[3]) {
-    char buffer[6];
+    char buffer[12];
     int32_t i, chunk1, chunk2, chunk3;
     std::string str, result;
 
@@ -85,7 +85,7 @@ std::string min1Decode(unsigned char input[3]) {
 }
 
 std::string min2Decode(unsigned char input[1]) {
-    char buffer[2];
+    char buffer[4];
     int32_t i, chunk;
     std::string str, result;
 
@@ -101,7 +101,7 @@ std::string min2Decode(unsigned char input[1]) {
 }
 
 std::string sidDecode(unsigned char input[1]) {
-    char buffer[4];
+    char buffer[8];
     std::string str, result;
     uint16_t i;
 

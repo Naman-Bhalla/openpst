@@ -36,11 +36,36 @@ namespace OpenPST {
 		~LafSerial();
 
 		/**
+		* @brief enterLaf
+		*/
+		void enterLaf();
+
+		/**
+		* @brief sendHello
+		*/
+		void sendHello();
+
+		/**
+		* @brief sendReset
+		*/
+		void sendReset();
+
+		/**
+		* @brief sendPowerOff
+		*/
+		void sendPowerOff();
+
+		/**
 		* @brief sendCommand
 		*
 		* @return response - Command Response String
 		*/
 		std::string sendCommand(std::string command);
+
+		/**
+		* @brief getProperty
+		*/
+		std::string getProperty(LafProperties property);
 
 	private:
 

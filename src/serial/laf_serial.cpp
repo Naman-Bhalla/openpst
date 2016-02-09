@@ -45,22 +45,68 @@ LafSerial::~LafSerial()
 }
 
 /**
+* @brief LafSerial::enterLaf
+*/
+void LafSerial::enterLaf()
+{
+	write(enable_laf, sizeof(enable_laf));
+}
+
+/**
+* @brief LafSerial::sendHello
+*/
+void LafSerial::sendHello()
+{
+	LafCmdHeader header = {};
+	header.command = LAF_CMD_HELO;
+	header.arg0 = 0x01000001;
+
+	uint16_t crc = crc16((char*)&header, (sizeof(header)));
+	header.crc = crc;
+
+	write((uint8_t*)&header, sizeof(header));
+}
+
+/**
+* @brief LafSerial::sendReset
+*/
+void LafSerial::sendReset()
+{
+	LafCmdHeader header = {};
+	header.command = LAF_CMD_CONTROL;
+	header.arg0 = LAF_CMD_CONTROL_RESET;
+	header.magic = LAF_CTRL_MAGIC;
+
+	uint16_t crc = crc16((char*)&header, (sizeof(header)));
+	header.crc = crc;
+
+	write((uint8_t*)&header, sizeof(header));
+}
+
+/**
+* @brief LafSerial::sendPowerOff
+*/
+void LafSerial::sendPowerOff()
+{
+	LafCmdHeader header = {};
+	header.command = LAF_CMD_CONTROL;
+	header.arg0 = LAF_CMD_CONTROL_POWER_OFF;
+	header.magic = LAF_CTRL_MAGIC;
+
+	uint16_t crc = crc16((char*)&header, (sizeof(header)));
+	header.crc = crc;
+
+	write((uint8_t*)&header, sizeof(header));
+}
+
+/**
 * @brief LafSerial::sendCommand(std::string command)
 */
 std::string LafSerial::sendCommand(std::string command) {
-	if (command.compare("ENTER") == 0) {
-		write(enable_laf, sizeof(enable_laf));
-		return "";
-	} else if (command.compare("LEAVE") == 0) {
-		// TODO: 
-	} else if (command.compare("SPECIAL") == 0) {
-		LafCmdHeader header = {};
-		header.command = LAF_CMD_INFO;
-		header.magic = 0x000;
-		header.arg1 = 0xB08;
-		header.arg_opt0 = LAF_CMD_INFO_SPRO;
-		write((uint8_t*)&header, sizeof(enable_laf));
-		return "";
+	if (command.compare("SPECIAL") == 0) {
+		
+
+		return "SPECIAL";
 	}
 
 	std::stringstream lafCmdResponse;
@@ -83,6 +129,10 @@ std::string LafSerial::sendCommand(std::string command) {
 		uint16_t crc = crc16((char*)packet, (sizeof(header) + command.size() + 1));
 		packet->header.crc = crc;
 
+		// printf("LAF PACKET REQUEST\n");
+		// hexdump((unsigned char*)packet, 128);
+		// printf("\n");
+
 		write((uint8_t*)packet, (sizeof(header) + command.size() + 1));
 
 		if (!(responseSize = read(buffer, BUFFER_SIZE))) {
@@ -100,5 +150,52 @@ std::string LafSerial::sendCommand(std::string command) {
 		}
 	}
 
+	// printf("LAF PACKET RESPONSE\n");
+	// hexdump((unsigned char*)packet, 256);
+	// printf("\n");
+
+	// printf(lafCmdResponse.str().c_str());
+
 	return lafCmdResponse.str();
+}
+
+/**
+* @brief LafSerial::getProperty
+*/
+std::string LafSerial::getProperty(LafProperties property)
+{
+	LafCmdHeader header = {};
+	header.command = LAF_CMD_INFO;
+	header.arg0 = LAF_CMD_INFO_GPRO;
+	header.size = LAF_INFO_SIZE;
+	header.magic = LAF_INFO_MAGIC;
+
+	// LafCmd* packet = (LafCmd*)buffer;
+	// packet->header = header;
+
+	// memcpy(packet->data, &property, sizeof(property));
+	// packet->header.size = sizeof(property);
+	// packet->header.crc = 0x000000;
+
+	// uint16_t crc = crc16((char*)packet, (sizeof(packet)));
+	// packet->header.crc = crc;
+
+	// uint16_t crc = crc16((char*)&header, (sizeof(header)));
+	header.crc = 0x00000917;
+
+	
+
+	printf("LAF PROP REQUEST\n");
+	hexdump((unsigned char*)&header, 32);
+	printf("\n");
+
+	write((uint8_t*)&header, sizeof(header));
+
+	// write((uint8_t*)packet, sizeof(packet));
+
+	printf("LAF PROP RESPONSE\n");
+	hexdump((unsigned char*)&header, 2048);
+	printf("\n");
+
+	return "TEST";
 }

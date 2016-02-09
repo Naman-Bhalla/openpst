@@ -34,6 +34,18 @@
     <Filter Include="Header Files\util">
       <UniqueIdentifier>{4649fe2a-a3df-4aaa-a87d-7c54c1f09b70}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\adb">
+      <UniqueIdentifier>{22ff70e2-57ab-4e47-8b80-767fb559f8b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\adb">
+      <UniqueIdentifier>{347816c6-c0f5-4d7b-ae9e-45844d9bb079}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\samsung">
+      <UniqueIdentifier>{f093c643-1645-4052-aaf0-8e190436b61b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\samsung">
+      <UniqueIdentifier>{b12f1012-bf7a-402a-ad5c-c7cdf907b095}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\serial\hdlc_serial.cpp">
@@ -74,6 +86,12 @@
     </ClCompile>
     <ClCompile Include="..\src\serial\laf_serial.cpp">
       <Filter>Source Files\serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\adb\adb.cpp">
+      <Filter>Source Files\adb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\samsung\akseed_calculator.cpp">
+      <Filter>Source Files\samsung</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -145,6 +163,18 @@
     </ClInclude>
     <ClInclude Include="..\src\serial\laf_serial.h">
       <Filter>Header Files\serial</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\adb\adb.h">
+      <Filter>Header Files\adb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\samsung\akseed_calculator.h">
+      <Filter>Header Files\samsung</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

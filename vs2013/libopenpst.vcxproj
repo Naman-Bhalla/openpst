@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\adb\adb.cpp" />
     <ClCompile Include="..\src\qc\dm_efs_node.cpp" />
     <ClCompile Include="..\src\qc\dm_efs_manager.cpp" />
     <ClCompile Include="..\src\qc\hdlc.cpp" />
+    <ClCompile Include="..\src\samsung\akseed_calculator.cpp" />
     <ClCompile Include="..\src\serial\hdlc_serial.cpp" />
     <ClCompile Include="..\src\serial\laf_serial.cpp" />
     <ClCompile Include="..\src\serial\qcdm_serial.cpp" />
@@ -34,6 +36,7 @@
     <ClCompile Include="..\src\util\sleep.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\adb\adb.h" />
     <ClInclude Include="..\src\include\definitions.h" />
     <ClInclude Include="..\src\include\win_inttypes.h" />
     <ClInclude Include="..\src\include\win_stdint.h" />
@@ -47,6 +50,7 @@
     <ClInclude Include="..\src\qc\mbn.h" />
     <ClInclude Include="..\src\qc\sahara.h" />
     <ClInclude Include="..\src\qc\streaming_dload.h" />
+    <ClInclude Include="..\src\samsung\akseed_calculator.h" />
     <ClInclude Include="..\src\serial\hdlc_serial.h" />
     <ClInclude Include="..\src\serial\laf_serial.h" />
     <ClInclude Include="..\src\serial\qcdm_serial.h" />
@@ -57,6 +61,8 @@
     <ClInclude Include="..\src\util\hexdump.h" />
     <ClInclude Include="..\src\util\meid.h" />
     <ClInclude Include="..\src\util\sleep.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{076D4926-771D-4B94-BA24-DF3252D35E90}</ProjectGuid>

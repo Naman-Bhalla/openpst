@@ -70,7 +70,14 @@ namespace OpenPST {
 			kSpcReadTypeEfs = 1,
 			kSpcReadTypeHtc = 2,
 			kSpcReadTypeLg = 3,
-			kSpcReadTypeSamsung = 3,
+			kSpcReadTypeSubsys = 4,
+		};
+
+		enum ImeiMeidMethod
+		{
+			kImeiMeidMethodNv = 0,
+			kImeiMeidMethodEfs = 1,
+			kImeiMeidMethodSubsys = 2
 		};
 
 		std::vector<QThread*> workers;
@@ -152,6 +159,11 @@ namespace OpenPST {
 		/**
 		* @brief
 		*/
+		void writeImei();
+
+		/**
+		* @brief
+		*/
 		void readMeid();
 
 		/**
@@ -228,12 +240,6 @@ namespace OpenPST {
 		* @brief
 		*/
 		void switchToDload();
-
-		
-		/**
-		* @brief
-		*/
-		void onSpcTextChanged(QString value);
 
 		/**
 		* @brief

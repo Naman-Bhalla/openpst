@@ -25,6 +25,8 @@
 #include <QListWidget>
 #include <QtXml>
 #include "ui_qcsamunlock_window.h"
+#include "worker/serial_at_command_worker.h"
+#include "serial/serial.h"
 #include "serial/laf_serial.h"
 #include "serial/qcdm_serial.h"
 #include "include/definitions.h"
@@ -47,7 +49,8 @@ namespace OpenPST {
 		enum PortType
 		{
 			kPortTypeLaf = 0,
-			kPortTypeQcdm = 1
+			kPortTypeQcdm = 1,
+			kPortTypeSerial = 2
 		};
 
 		enum LogType
@@ -82,8 +85,15 @@ namespace OpenPST {
 			kSamsungSimUnlockTypeNvData = 1
 		};
 
+		enum SamsungUartTask
+		{
+			kSamsungUartTaskReadInfo = 0,
+			kSamsungUartTaskReadSpc = 1,
+		};
+
 	public:
 		Ui::QcSamUnlockWindow* ui;
+		serial::Serial serialPort;
 		LafSerial lafPort;
 		QcdmSerial qcdmPort;
 		serial::PortInfo currentPort;
@@ -108,7 +118,7 @@ namespace OpenPST {
 		/**
 		* @brief
 		*/
-		void connectPort(int portType);
+		bool connectPort(int portType);
 
 		/**
 		* @brief
@@ -133,6 +143,8 @@ namespace OpenPST {
 		int syncRetries = 0;
 		int sequence = 0;
 
+		SerialAtCommandWorker* serialAtCommandWorker;
+
 		/**
 		* @brief
 		*/
@@ -151,12 +163,45 @@ namespace OpenPST {
 		/**
 		* @brief
 		*/
+		void lgGetDeviceInfo();
+
+		/**
+		* @brief
+		*/
 		void samsungEfsSimUnlock();
 
 		/**
 		* @brief
 		*/
+		void samsungUartParseReadInfo(QString command, QString output);
+
+		/**
+		* @brief
+		*/
+		void samsungUartReadInfo();
+
+		/**
+		* @brief
+		*/
+		void samsungUartReadSpc();
+
+		/**
+		* @brief
+		*/
+		bool samsungUartTestConnection();
+
+		/**
+		* @brief
+		*/
 		bool testSecurity();
+
+		void AtCommandRequest(SerialAtCommandWorkerRequest &request);
+
+		void AtCommandUpdate(SerialAtCommandWorkerResponse response);
+
+		void AtCommandError(QString message);
+
+		void AtCommandComplete(SerialAtCommandWorkerRequest request);
 
 		/**
 		* @brief
@@ -239,6 +284,11 @@ namespace OpenPST {
 		* @brief
 		*/
 		void samsungSimUnlock();
+
+		/**
+		* @brief
+		*/
+		void samsungUartPerformTask();
 
 		/**
 		* @brief

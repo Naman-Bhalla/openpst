@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>862</width>
-    <height>621</height>
+    <width>833</width>
+    <height>673</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -35,9 +35,9 @@
    <widget class="QComboBox" name="portListComboBox">
     <property name="geometry">
      <rect>
-      <x>70</x>
+      <x>50</x>
       <y>10</y>
-      <width>671</width>
+      <width>661</width>
       <height>27</height>
      </rect>
     </property>
@@ -53,9 +53,9 @@
     <property name="geometry">
      <rect>
       <x>380</x>
-      <y>80</y>
-      <width>471</width>
-      <height>531</height>
+      <y>120</y>
+      <width>441</width>
+      <height>541</height>
      </rect>
     </property>
     <property name="font">
@@ -72,11 +72,14 @@
     <property name="lineWidth">
      <number>1</number>
     </property>
+    <property name="undoRedoEnabled">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QPushButton" name="updatePortListButton">
     <property name="geometry">
      <rect>
-      <x>750</x>
+      <x>720</x>
       <y>9</y>
       <width>101</width>
       <height>29</height>
@@ -97,9 +100,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
+      <y>100</y>
       <width>361</width>
-      <height>551</height>
+      <height>561</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -109,7 +112,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -380,7 +383,7 @@
        </font>
       </property>
       <property name="title">
-       <string>IMEI / MEID</string>
+       <string>MEID / IMEI</string>
       </property>
       <widget class="QComboBox" name="meidMethod">
        <property name="geometry">
@@ -482,6 +485,9 @@
         </property>
        </widget>
        <widget class="QPushButton" name="writeImeiButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>242</x>
@@ -698,9 +704,9 @@
      <widget class="Line" name="line_4">
       <property name="geometry">
        <rect>
-        <x>7</x>
-        <y>450</y>
-        <width>341</width>
+        <x>10</x>
+        <y>460</y>
+        <width>331</width>
         <height>20</height>
        </rect>
       </property>
@@ -715,7 +721,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>480</y>
+        <y>490</y>
         <width>151</width>
         <height>29</height>
        </rect>
@@ -759,46 +765,6 @@
      <attribute name="title">
       <string>Samsung</string>
      </attribute>
-     <widget class="QGroupBox" name="groupBox_3">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>220</y>
-        <width>331</width>
-        <height>91</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="title">
-       <string>MEID CERT WRITE</string>
-      </property>
-     </widget>
-     <widget class="QGroupBox" name="groupBox_4">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>320</y>
-        <width>331</width>
-        <height>91</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="title">
-       <string>IMEI CERT WRITE</string>
-      </property>
-     </widget>
      <widget class="QGroupBox" name="groupBox_5">
       <property name="geometry">
        <rect>
@@ -819,6 +785,9 @@
        <string>EFS RESET</string>
       </property>
       <widget class="QComboBox" name="meidMethod_3">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>48</x>
@@ -972,6 +941,9 @@
        </property>
       </widget>
       <widget class="QComboBox" name="samsungSimUnlockComboBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>50</x>
@@ -997,36 +969,28 @@
          <string>NVDATA</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>SPRINT</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>T-MOBILE</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>US CELLULAR</string>
+        </property>
+       </item>
       </widget>
-     </widget>
-     <widget class="QPushButton" name="qualcommSimUnlockButton_2">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>480</y>
-        <width>121</width>
-        <height>29</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Repair DRK</string>
-      </property>
      </widget>
      <widget class="Line" name="line_6">
       <property name="geometry">
        <rect>
         <x>11</x>
-        <y>450</y>
+        <y>460</y>
         <width>331</width>
         <height>20</height>
        </rect>
@@ -1038,8 +1002,8 @@
      <widget class="QLabel" name="label_3">
       <property name="geometry">
        <rect>
-        <x>150</x>
-        <y>485</y>
+        <x>20</x>
+        <y>493</y>
         <width>181</width>
         <height>20</height>
        </rect>
@@ -1076,7 +1040,7 @@
        </font>
       </property>
       <property name="title">
-       <string>LOCK REMOVAL</string>
+       <string>LOCK REMOVE</string>
       </property>
       <widget class="QPushButton" name="lgRemoveFrpButton_4">
        <property name="enabled">
@@ -1122,6 +1086,9 @@
        </property>
       </widget>
       <widget class="QComboBox" name="meidMethod_4">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>50</x>
@@ -1154,77 +1121,13 @@
        </item>
       </widget>
      </widget>
-    </widget>
-    <widget class="QWidget" name="tab_3">
-     <attribute name="title">
-      <string>LG</string>
-     </attribute>
-     <widget class="QPushButton" name="lgSprintSimUnlockButton">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="geometry">
-       <rect>
-        <x>180</x>
-        <y>10</y>
-        <width>161</width>
-        <height>29</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Sprint SIM Unlock</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="lgRemoveFrpButton">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
+     <widget class="QGroupBox" name="groupBox_11">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>10</y>
-        <width>161</width>
-        <height>29</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Remove Google FRP</string>
-      </property>
-     </widget>
-     <widget class="Line" name="line_5">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>80</y>
+        <y>220</y>
         <width>331</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-     <widget class="QGroupBox" name="groupBox_2">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>100</y>
-        <width>331</width>
-        <height>101</height>
+        <height>61</height>
        </rect>
       </property>
       <property name="font">
@@ -1235,15 +1138,98 @@
        </font>
       </property>
       <property name="title">
-       <string>INSTRUCTIONS</string>
+       <string>UART</string>
       </property>
-      <widget class="QLabel" name="label">
+      <widget class="QComboBox" name="samsungUartTaskComboBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="geometry">
         <rect>
-         <x>20</x>
-         <y>30</y>
-         <width>291</width>
-         <height>51</height>
+         <x>48</x>
+         <y>21</y>
+         <width>161</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <item>
+        <property name="text">
+         <string>READ DEVICE INFO</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>READ MSL / SPC</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>MEID CERT READ</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>MEID CERT WRITE</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>IMEI CERT READ</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>IMEI CERT WRITE</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>VERIFY CERT</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>REPAIR DRK</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="meidMethodLabel_5">
+       <property name="geometry">
+        <rect>
+         <x>8</x>
+         <y>21</y>
+         <width>31</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Task</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="samsungUartTaskButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>20</y>
+         <width>111</width>
+         <height>29</height>
         </rect>
        </property>
        <property name="font">
@@ -1254,18 +1240,19 @@
         </font>
        </property>
        <property name="text">
-        <string>1. Power off the phone
-2. Hold Vol+ while plugging into computer
-3. Download Mode will display on the phone</string>
+        <string>Perform Task</string>
        </property>
       </widget>
      </widget>
-     <widget class="QPushButton" name="lgRemovePasswordButton">
+     <widget class="QPushButton" name="samsungUartTaskButton_2">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="geometry">
        <rect>
-        <x>50</x>
-        <y>50</y>
-        <width>251</width>
+        <x>220</x>
+        <y>490</y>
+        <width>111</width>
         <height>29</height>
        </rect>
       </property>
@@ -1277,14 +1264,32 @@
        </font>
       </property>
       <property name="text">
-       <string>Remove PIN / Password / Pattern</string>
+       <string>Enable UART</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>LG</string>
+     </attribute>
+     <widget class="Line" name="line_5">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>460</y>
+        <width>331</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
       </property>
      </widget>
      <widget class="QLabel" name="label_2">
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>220</y>
+        <y>495</y>
         <width>141</width>
         <height>16</height>
        </rect>
@@ -1304,14 +1309,230 @@
        <set>Qt::TextBrowserInteraction</set>
       </property>
      </widget>
+     <widget class="QGroupBox" name="groupBox_8">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>331</width>
+        <height>211</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>DOWNLOAD MODE</string>
+      </property>
+      <widget class="QPushButton" name="lgSprintSimUnlockButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>20</y>
+         <width>151</width>
+         <height>29</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Sprint SIM Unlock</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="lgRemoveFrpButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>151</width>
+         <height>29</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Remove Google FRP</string>
+       </property>
+      </widget>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>100</y>
+         <width>311</width>
+         <height>101</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="title">
+        <string>INSTRUCTIONS</string>
+       </property>
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>291</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>1. Power off the phone
+2. Hold Vol+ while plugging into computer
+3. Download Mode will display on the phone</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QPushButton" name="lgRemovePasswordButton">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>60</y>
+         <width>251</width>
+         <height>29</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Remove PIN / Password / Pattern</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_9">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>230</y>
+        <width>331</width>
+        <height>221</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>USB DEBUGGING</string>
+      </property>
+      <widget class="QGroupBox" name="groupBox_10">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>311</width>
+         <height>151</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="title">
+        <string>INSTRUCTIONS</string>
+       </property>
+       <widget class="QLabel" name="label_6">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>291</width>
+          <height>101</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>1. Settings &gt; About Phone
+2. Tap Build Number 7 times
+3. Press Back button
+4. Select Developer Options
+5. USB Debugging = Checked
+6. Allow USB Debugging when prompted</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QPushButton" name="lgUsCellularSimUnlock">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>60</x>
+         <y>20</y>
+         <width>211</width>
+         <height>29</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>US Cellular SIM Unlock</string>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </widget>
    <widget class="Line" name="line">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>841</width>
+      <y>80</y>
+      <width>811</width>
       <height>20</height>
      </rect>
     </property>
@@ -1322,8 +1543,8 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>750</x>
-      <y>55</y>
+      <x>720</x>
+      <y>95</y>
       <width>101</width>
       <height>20</height>
      </rect>
@@ -1351,21 +1572,74 @@
      <rect>
       <x>10</x>
       <y>12</y>
-      <width>51</width>
+      <width>31</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>COM Port</string>
+     <string>Port</string>
     </property>
    </widget>
-   <zorder>tabWidget</zorder>
+   <widget class="QPushButton" name="updateAdbListButton">
+    <property name="geometry">
+     <rect>
+      <x>720</x>
+      <y>49</y>
+      <width>101</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Refresh ADB</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>52</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Device</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="adbListComboBox">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>50</y>
+      <width>661</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+   </widget>
    <zorder>portListComboBox</zorder>
    <zorder>log</zorder>
    <zorder>updatePortListButton</zorder>
    <zorder>line</zorder>
    <zorder>label_4</zorder>
    <zorder>label_5</zorder>
+   <zorder>tabWidget</zorder>
+   <zorder>updateAdbListButton</zorder>
+   <zorder>label_7</zorder>
+   <zorder>adbListComboBox</zorder>
   </widget>
  </widget>
  <resources/>

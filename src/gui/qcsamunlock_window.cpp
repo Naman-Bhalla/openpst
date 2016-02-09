@@ -20,6 +20,7 @@ QcSamUnlockWindow::QcSamUnlockWindow(QWidget *parent) :
 	ui(new Ui::QcSamUnlockWindow),
 	lafPort("", 115200, serial::Timeout::simpleTimeout(500)),
 	qcdmPort("", 115200, serial::Timeout::simpleTimeout(500)),
+	serialPort("", 115200, serial::Timeout::simpleTimeout(500)),
 	efsManager(qcdmPort)
 {
     ui->setupUi(this);
@@ -31,6 +32,9 @@ QcSamUnlockWindow::QcSamUnlockWindow(QWidget *parent) :
 	ui->subscriptionValue->addItem("NV ONLY", kQcdmRuimConfigTypeNv);
 	ui->subscriptionValue->addItem("RUIM PREFERRED", kQcdmRuimConfigTypePref);
 	ui->subscriptionValue->addItem("GSM 1X", kQcdmRuimConfigTypeGsm1x);
+
+	qRegisterMetaType<SerialAtCommandWorkerRequest>("SerialAtCommandWorkerRequest");
+	qRegisterMetaType<SerialAtCommandWorkerResponse>("SerialAtCommandWorkerResponse");
 
     QObject::connect(ui->updatePortListButton, SIGNAL(clicked()), this, SLOT(updatePortList()));
 
@@ -52,6 +56,7 @@ QcSamUnlockWindow::QcSamUnlockWindow(QWidget *parent) :
 
 	// Samsung
 	QObject::connect(ui->samsungSimUnlockButton, SIGNAL(clicked()), this, SLOT(samsungSimUnlock()));
+	QObject::connect(ui->samsungUartTaskButton, SIGNAL(clicked()), this, SLOT(samsungUartPerformTask()));
 }
 
 /**
@@ -102,13 +107,13 @@ void QcSamUnlockWindow::updatePortList()
 /**
 * @brief QcSamUnlockWindow::connectPort
 */
-void QcSamUnlockWindow::connectPort(int portType)
+bool QcSamUnlockWindow::connectPort(int portType)
 {
 	QString selected = ui->portListComboBox->currentData().toString();
 
     if (selected.compare("0") == 0) {
         log(kLogTypeWarning, "Select a Port First");
-        return;
+        return false;
     }
 
     std::vector<serial::PortInfo> devices = serial::list_ports();
@@ -124,44 +129,56 @@ void QcSamUnlockWindow::connectPort(int portType)
 
     if (!currentPort.port.length()) {
         log(kLogTypeError, "Invalid Port Type");
-        return;
+        return false;
     }
 
-	if (lafPort.isOpen() || qcdmPort.isOpen()) { return; }
+	if (lafPort.isOpen() || qcdmPort.isOpen()) { return true; }
 
 	switch (portType) {
 	case kPortTypeLaf:
 		try {
-			
-
 			lafPort.setPort(currentPort.port);
 			lafPort.open();
 		}
 		catch (serial::IOException e) {
 			log(kLogTypeError, "Error Connecting To Serial Port");
 			log(kLogTypeError, e.getErrorNumber() == 13 ? "Permission Denied. Try Running With Elevated Privledges." : e.what());
-			return;
+			return false;
 		}
 		catch (std::exception e) {
 			log(kLogTypeError, e.what());
-			return;
+			return false;
 		}
 		break;
 	case kPortTypeQcdm:
 		try {
-			
-
 			qcdmPort.setPort(currentPort.port);
 			qcdmPort.open();
 		}
 		catch (serial::IOException e) {
 			log(kLogTypeError, "Error Connecting To Serial Port");
 			log(kLogTypeError, e.getErrorNumber() == 13 ? "Permission Denied. Try Running With Elevated Privledges." : e.what());
-			return;
+			return false;
 		}
 		catch (std::exception e) {
 			log(kLogTypeError, e.what());
-			return;
+			return false;
+		}
+
+		break;
+	case kPortTypeSerial:
+		try {
+			serialPort.setPort(currentPort.port);
+			serialPort.open();
+		}
+		catch (serial::IOException e) {
+			log(kLogTypeError, "Error Connecting To Serial Port");
+			log(kLogTypeError, e.getErrorNumber() == 13 ? "Permission Denied. Try Running With Elevated Privledges." : e.what());
+			return false;
+		}
+		catch (std::exception e) {
+			log(kLogTypeError, e.what());
+			return false;
 		}
 
 		break;
@@ -175,6 +192,8 @@ void QcSamUnlockWindow::connectPort(int portType)
 	QString connectedText = "Connected to ";
 	connectedText.append(currentPort.port.c_str());
 	log(kLogTypeInfo, connectedText);
+
+	return true;
 }
 
 /**
@@ -195,6 +214,12 @@ void QcSamUnlockWindow::disconnectPort(int portType)
 		}
 
 		break;
+	case kPortTypeSerial:
+		if (serialPort.isOpen()) {
+			serialPort.close();
+		}
+
+		break;
 	}
 
 	logAddEmptyLine();
@@ -208,13 +233,30 @@ void QcSamUnlockWindow::disconnectPort(int portType)
 }
 
 /**
+* @brief QcSamUnlockWindow::sendAtCommand
+*/
+bool QcSamUnlockWindow::samsungUartTestConnection()
+{
+	serialPort.write("AT\r\n");
+
+	for (string line : serialPort.readlines()) {
+		if (line.length() && QString::fromStdString(line) != "AT\r\n") {
+			printf(line.c_str());
+			return true;
+		}
+	}
+
+	sleep(300);
+
+	return false;
+}
+
+/**
 * @brief QcSamUnlockWindow::qualcommReadAll
 */
 void QcSamUnlockWindow::qualcommReadAll()
 {
-	connectPort(kPortTypeQcdm);
-
-	if (!qcdmPort.isOpen()) { return; }
+	if (!connectPort(kPortTypeQcdm)) { return; }
 
 	readSpc();
 	readMeid();
@@ -229,9 +271,7 @@ void QcSamUnlockWindow::qualcommReadAll()
 */
 void QcSamUnlockWindow::qualcommReadSpc()
 {
-	connectPort(kPortTypeQcdm);
-
-	if (!qcdmPort.isOpen()) { return; }
+	if (!connectPort(kPortTypeQcdm)) { return; }
 
 	readSpc();
 
@@ -243,9 +283,7 @@ void QcSamUnlockWindow::qualcommReadSpc()
 */
 void QcSamUnlockWindow::qualcommReadMeid()
 {
-	connectPort(kPortTypeQcdm);
-
-	if (!qcdmPort.isOpen()) { return; }
+	if (!connectPort(kPortTypeQcdm)) { return; }
 
 	readMeid();
 
@@ -257,9 +295,7 @@ void QcSamUnlockWindow::qualcommReadMeid()
 */
 void QcSamUnlockWindow::qualcommReadImei()
 {
-	connectPort(kPortTypeQcdm);
-
-	if (!qcdmPort.isOpen()) { return; }
+	if (!connectPort(kPortTypeQcdm)) { return; }
 
 	readImei();
 
@@ -271,9 +307,7 @@ void QcSamUnlockWindow::qualcommReadImei()
 */
 void QcSamUnlockWindow::qualcommReadSubscription()
 {
-	connectPort(kPortTypeQcdm);
-
-	if (!qcdmPort.isOpen()) { return; }
+	if (!connectPort(kPortTypeQcdm)) { return; }
 
 	readSubscription();
 
@@ -374,7 +408,7 @@ void QcSamUnlockWindow::readSpc()
 */
 void QcSamUnlockWindow::writeSpc()
 {
-	connectPort(kPortTypeQcdm);
+	if (!connectPort(kPortTypeQcdm)) { return; }
 
 	QcdmNvRequest packet = {};
 
@@ -394,7 +428,6 @@ void QcSamUnlockWindow::writeSpc()
 		}
 		catch (std::exception &e) {
 			log(kLogTypeError, e.what());
-			return;
 		}
 
 		break;
@@ -410,7 +443,6 @@ void QcSamUnlockWindow::writeSpc()
 		}
 		catch (std::exception &e) {
 			log(kLogTypeError, e.what());
-			return;
 		}
 
 		break;
@@ -426,7 +458,6 @@ void QcSamUnlockWindow::writeSpc()
 		}
 		catch (std::exception &e) {
 			log(kLogTypeError, e.what());
-			return;
 		}
 
 		break;
@@ -440,7 +471,6 @@ void QcSamUnlockWindow::writeSpc()
 		}
 		catch (std::exception &e) {
 			log(kLogTypeError, e.what());
-			return;
 		}
 
 		break;
@@ -465,7 +495,7 @@ void QcSamUnlockWindow::readMeid()
 	log(kLogTypeInfo, "METHOD: " + ui->meidMethod->currentText());
 	logAddEmptyLine();
 
-	QString meid, tmp;
+	QString meid, tmp = "";
 
 	switch (ui->meidMethod->currentIndex()) {
 	case kImeiMeidMethodNv:
@@ -476,7 +506,6 @@ void QcSamUnlockWindow::readMeid()
 		}
 		catch (std::exception &e) {
 			log(kLogTypeError, e.what());
-			return;
 		}
 
 		std::reverse((uint8_t*)&nvItem.data, ((uint8_t*)&nvItem.data) + 7);
@@ -486,7 +515,10 @@ void QcSamUnlockWindow::readMeid()
 		}
 
 		break;
-	case kImeiMeidMethodEfs:
+	case kImeiMeidMethodEfs || kImeiMeidMethodEfsForceWrite:
+		if (efsManager.statfs("/nvm/num/1943", statResponse) == efsManager.kDmEfsSuccess) {
+			// TODO:
+		}
 
 		break;
 	case kImeiMeidMethodSubsys:
@@ -497,7 +529,6 @@ void QcSamUnlockWindow::readMeid()
 		}
 		catch (std::exception &e) {
 			log(kLogTypeError, e.what());
-			return;
 		}
 
 		std::reverse((uint8_t*)&subsys.data, ((uint8_t*)&subsys.data) + 7);
@@ -507,12 +538,12 @@ void QcSamUnlockWindow::readMeid()
 		}
 	}
 
-	if (meid.length() >= 14) {
-		ui->hexMeidValue->setText(meid);
-		log(kLogTypeInfo, "RESULT: " + meid);
+	if (meid.length() != 14 || meid.toStdString() == "CCCCCCCCCCCCCC") {
+		log(kLogTypeError, "RESULT: FAIL");
 	}
 	else {
-		log(kLogTypeError, "RESULT: FAIL");
+		ui->hexMeidValue->setText(meid);
+		log(kLogTypeInfo, "RESULT: " + meid);
 	}
 }
 
@@ -521,7 +552,7 @@ void QcSamUnlockWindow::readMeid()
 */
 void QcSamUnlockWindow::writeMeid()
 {
-	connectPort(kPortTypeQcdm);
+	if (!connectPort(kPortTypeQcdm)) { return; }
 
 	if (ui->hexMeidValue->text().length() != 14) {
 		log(kLogTypeWarning, "Enter a Valid 14 Character MEID");
@@ -546,9 +577,15 @@ void QcSamUnlockWindow::writeMeid()
 
 		break;
 	case kImeiMeidMethodEfs:
+		if (efsManager.statfs("/nvm/num/1943", statResponse) == efsManager.kDmEfsSuccess) {
+			// TODO:
+		}
 
 		break;
 	case kImeiMeidMethodEfsForceWrite:
+		if (efsManager.statfs("/nvm/num/1943", statResponse) == efsManager.kDmEfsSuccess) {
+			// TODO:
+		}
 
 		break;
 	case kImeiMeidMethodSubsys:
@@ -586,7 +623,6 @@ void QcSamUnlockWindow::readImei()
 	}
 	catch (std::exception &e) {
 		log(kLogTypeError, e.what());
-		return;
 	}
 
 	for (int i = 1; i < 9; i++) {
@@ -598,12 +634,12 @@ void QcSamUnlockWindow::readImei()
 		}
 	}
 
-	if (imei.length() == 15) {
-		ui->imeiValue->setText(imei);
-		log(kLogTypeInfo, "RESULT: " + imei);
+	if (imei.length() == 15 || imei.toStdString() == "CCCCCCCCCCCCCCC") {
+		log(kLogTypeError, "RESULT: FAIL");
 	}
 	else {
-		log(kLogTypeError, "RESULT: FAIL");
+		ui->imeiValue->setText(imei);
+		log(kLogTypeInfo, "RESULT: " + imei);
 	}
 }
 
@@ -612,7 +648,7 @@ void QcSamUnlockWindow::readImei()
 */
 void QcSamUnlockWindow::writeImei()
 {
-	connectPort(kPortTypeQcdm);
+	if (!connectPort(kPortTypeQcdm)) { return; }
 
 	QcdmNvRequest packet = {};
 
@@ -667,7 +703,7 @@ void QcSamUnlockWindow::writeImei()
 void QcSamUnlockWindow::readSubscription()
 {
 	logAddEmptyLine();
-	log(kLogTypeInfo, "TASK: SUBSCRIPTION MODE READ");
+	log(kLogTypeInfo, "TASK: QUALCOMM SUBSCRIPTION MODE READ");
 	logAddEmptyLine();
 
 	QcdmNvResponse nvItem;
@@ -677,12 +713,16 @@ void QcSamUnlockWindow::readSubscription()
 	}
 	catch (std::exception &e) {
 		log(kLogTypeError, e.what());
-		return;
 	}
 
-	ui->subscriptionValue->setCurrentIndex(ui->subscriptionValue->findData(nvItem.data[0]));
+	if (nvItem.data[0] = 0) {
+		log(kLogTypeError, "RESULT: FAIL");
+	}
+	else {
+		ui->subscriptionValue->setCurrentIndex(nvItem.data[0]);
 
-	log(kLogTypeInfo, "RESULT: " + ui->subscriptionValue->currentText());
+		log(kLogTypeInfo, "RESULT: " + ui->subscriptionValue->currentText());
+	}
 }
 
 /**
@@ -690,12 +730,16 @@ void QcSamUnlockWindow::readSubscription()
 */
 void QcSamUnlockWindow::writeSubscription()
 {
-	connectPort(kPortTypeQcdm);
+	if (!connectPort(kPortTypeQcdm)) { return; }
+
+	logAddEmptyLine();
+	log(kLogTypeInfo, "TASK: QUALCOMM SUBSCRIPTION MODE WRITE");
+	logAddEmptyLine();
 
 	int mode = ui->subscriptionValue->currentData().toUInt();
 
 	if (mode < 0) {
-		log(kLogTypeError, "Select a Subsciption Mode to Write");
+		log(kLogTypeError, "SELECT A SUBSCRIPTION MODE TO WRITE");
 		return;
 	}
 
@@ -710,10 +754,18 @@ void QcSamUnlockWindow::writeSubscription()
 		log(kLogTypeError, e.what());
 		return;
 	}
+	
+	if (packet.data[0] = 0) {
+		log(kLogTypeError, "RESULT: FAIL");
+	}
+	else {
+		ui->subscriptionValue->setCurrentIndex(packet.data[0]);
 
-	ui->subscriptionValue->setCurrentIndex(ui->subscriptionValue->findData(packet.data[0]));
+		log(kLogTypeInfo, "RESULT: " + ui->subscriptionValue->currentText());
+	}
 
 	disconnectPort(kPortTypeQcdm);
+	saveLog("QUALCOMM SUBSCRIPTION MODE WRITE");
 }
 
 /**
@@ -741,21 +793,153 @@ bool QcSamUnlockWindow::processItem(int item, int sequence)
 /**
 * @brief QcSamUnlockWindow::lgRemoveFrp
 */
+void QcSamUnlockWindow::lgGetDeviceInfo()
+{
+	QString serial = QString::fromStdString(lafPort.sendCommand("getprop ro.serialno"));
+
+	log(kLogTypeInfo, "SERIAL:   " + serial);
+
+	QString value;
+
+	QString buildprop = QString::fromStdString(lafPort.sendCommand("cat build.prop"));
+
+	// log(kLogTypeDebug, "BUILD.PROP:<br>" + buildprop);
+	// logAddEmptyLine();
+
+	QStringList lines = buildprop.split("\n");
+
+	for (QString line : lines) {
+		if (line.contains("ro.product.model=")) {
+			QStringList prop = line.split("=");
+			value = prop[1];
+			log(kLogTypeDebug, "MODEL:    " + value);
+		}
+
+		if (line.contains("ro.lge.swversion_short=")) {
+			QStringList prop = line.split("=");
+			value = prop[1];
+			log(kLogTypeDebug, "BUILD:    " + value);
+		}
+
+		if (line.contains("ro.build.target_operator=")) {
+			QStringList prop = line.split("=");
+			value = prop[1];
+			log(kLogTypeDebug, "OPERATOR: " + value);
+		}
+	}
+
+	logAddEmptyLine();
+}
+
+/**
+* @brief QcSamUnlockWindow::lgRemoveFrp
+*/
 void QcSamUnlockWindow::lgRemoveFrp()
 {
-	connectPort(kPortTypeLaf);
+	if (!connectPort(kPortTypeLaf)) { return; }
 
-	if (!lafPort.isOpen()) { return; }
-
+	logAddEmptyLine();
 	log(kLogTypeInfo, "TASK: LG FRP REMOVE");
 	logAddEmptyLine();
 
+	lafPort.sendHello();
+	lafPort.enterLaf();
+
+	// QString test = QString::fromStdString(lafPort.getProperty(LAF_PROP_IMEI));
+	// log(kLogTypeDebug, "PROPERTY: " + test);
+
 	if (lafPort.sendCommand("id").find("root") != string::npos) {
-	// // G4 -- All Variants
-	// dd if = / dev / block / mmcblk0 bs = 8192 seek = 23808 count = 10 of = <output>  // Backup
-	// 
-	// dd if = / dev / zero bs = 8192 seek = 23808 count = 10 of = / dev / block / mmcblk0 // Remove FRP
-	// 
+
+		
+
+		// lgGetDeviceInfo();
+
+		// QString mounts = QString::fromStdString(lafPort.sendCommand("cat /proc/mounts"));
+		// 
+		// log(kLogTypeDebug, "MOUNTS:<br>" + mounts);
+		// 
+		// QString partitions = QString::fromStdString(lafPort.sendCommand("cat /proc/partitions"));
+		// 
+		// log(kLogTypeDebug, "PARTITIONS:<br>" + partitions);
+		// 
+		// logAddEmptyLine();
+
+		// QString test = QString::fromStdString(lafPort.sendCommand("SPECIAL"));
+		// log(kLogTypeDebug, "SPECIAL: " + test);
+
+		// QString model;
+		// 
+		// QString buildprop = QString::fromStdString(lafPort.sendCommand("cat build.prop"));
+		// 
+		// QStringList lines = buildprop.split("\n");
+		// 
+		// for (QString line : lines) {
+		// 	if (line.contains("ro.product.model=")) {
+		// 		QStringList prop = line.split("=");
+		// 		model = prop[1];
+		// 	}
+		// }
+		// 
+		// log(kLogTypeDebug, "CHECKING DEVICE COMPATIBILITY");
+		// 
+		// QStringList lgG4Variants = { "VS986", "LS991", "US991", "H810", "H811", "H812", "H815", "H818", "H819", "F500" };
+		// 
+		// for (QString variant : lgG4Variants) {
+		// 	if (model.contains(variant)) {
+		// 		log(kLogTypeDebug, "DEVICE IS COMPATIBLE");
+		// 		logAddEmptyLine();
+		// 
+		// 		log(kLogTypeDebug, "CREATING PARTITION BACKUP");
+		// 
+		// 		// FIXME
+		// 		// lafPort.sendCommand("dd if=/dev/block/mmcblk0 bs=8192 seek=23808 count=10 of=");
+		// 
+		// 		log(kLogTypeDebug, "REMOVING GOOGLE FRP");
+		// 		
+		// 		// lafPort.sendCommand("dd if=/dev/zero bs=8192 seek=23808 count=10 of=/dev/block/mmcblk0");
+		// 	}
+		// }
+		// 
+		// QStringList lgGFlexVariants = { "D950", "D955", "D958", "D959", "LS995", "F340", "H950", "H955", "LS996", "US995" };
+		// 
+		// for (QString variant : lgGFlexVariants) {
+		// 	if (model.contains(variant)) {
+		// 		log(kLogTypeDebug, variant + " DETECTED");
+		// 		logAddEmptyLine();
+		// 
+		// 		log(kLogTypeDebug, "CREATING PARTITION BACKUP");
+		// 
+		// 		// FIXME
+		// 		lafPort.sendCommand("dd if=/dev/block/mmcblk0 bs=8192 seek=21697 count=256 of=");
+		// 		lafPort.sendCommand("dd if=/dev/block/mmcblk0p34 of=");
+		// 
+		// 		log(kLogTypeDebug, "REMOVING GOOGLE FRP");
+		// 
+		// 		lafPort.sendCommand("dd if=/dev/zero bs=8192 seek=21697 count=256 of=/dev/block/mmcblk0");
+		// 		lafPort.sendCommand("dd if=/dev/zero of=/dev/block/mmcblk0p34");
+		// 	}
+		// }
+		// 
+		// QStringList lgLeonRisioStyloVariants = { "H631", "MS631", "LS770", "H340", "MS345", "H343" };
+		// 
+		// for (QString variant : lgLeonRisioStyloVariants) {
+		// 	if (model.contains(variant)) {
+		// 		log(kLogTypeDebug, variant + " DETECTED");
+		// 		logAddEmptyLine();
+		// 
+		// 		log(kLogTypeDebug, "CREATING PARTITION BACKUP");
+		// 
+		// 		// FIXME
+		// 		lafPort.sendCommand("dd if=/dev/block/mmcblk0p34 of=");
+		// 
+		// 		log(kLogTypeDebug, "REMOVING GOOGLE FRP");
+		// 
+		// 		lafPort.sendCommand("dd if=/dev/zero of=/dev/block/mmcblk0p34");
+		// 	}
+		// }
+		// 
+		// logAddEmptyLine();
+
 	// // G Flex / G Flex 2 -- All Variants
 	// dd if = / dev / block / mmcblk0 bs = 8192 seek = 21697 count = 256 of = <output>  // Backup
 	// dd if = / dev / block / mmcblk0p34 of = / dev / zero                           // Backup
@@ -782,6 +966,10 @@ void QcSamUnlockWindow::lgRemoveFrp()
 	// dd if = / dev / zero bs = 8192 seek = 37184 count = 10 of = / dev / block / mmcblk0 // Remove FRP
 
 		log(kLogTypeInfo, "RESULT: SUCCESS");
+
+		
+		
+		lafPort.sendPowerOff();
 	}
 	else {
 		log(kLogTypeError, "Phone Detection Failed");
@@ -789,6 +977,7 @@ void QcSamUnlockWindow::lgRemoveFrp()
 	}
 
 	disconnectPort(kPortTypeLaf);
+	saveLog("LG FRP REMOVE");
 }
 
 /**
@@ -796,19 +985,28 @@ void QcSamUnlockWindow::lgRemoveFrp()
 */
 void QcSamUnlockWindow::lgRemovePasscode()
 {
-	connectPort(kPortTypeLaf);
+	if (!connectPort(kPortTypeLaf)) { return; }
 
-	if (!lafPort.isOpen()) { return; }
-
+	logAddEmptyLine();
 	log(kLogTypeInfo, "TASK: LG PASSCODE REMOVE");
 	logAddEmptyLine();
 
+	lafPort.sendHello();
+	lafPort.enterLaf();
+
 	if (lafPort.sendCommand("id").find("root") != string::npos) {
+		lgGetDeviceInfo();
+
 		lafPort.sendCommand("rm /data/system/locksettings.db");
 		lafPort.sendCommand("rm /data/system/locksettings.db-shm");
 		lafPort.sendCommand("rm /data/system/locksettings.db-wal");
 		lafPort.sendCommand("rm /data/system/gesture.key");
 		lafPort.sendCommand("rm /data/system/password.key");
+
+		log(kLogTypeInfo, "REBOOTING DEVICE");
+		logAddEmptyLine();
+
+		lafPort.sendReset();
 
 		log(kLogTypeInfo, "RESULT: SUCCESS");
 	}
@@ -818,6 +1016,7 @@ void QcSamUnlockWindow::lgRemovePasscode()
 	}
 
 	disconnectPort(kPortTypeLaf);
+	saveLog("LG PASSCODE REMOVE");
 }
 
 /**
@@ -825,20 +1024,31 @@ void QcSamUnlockWindow::lgRemovePasscode()
 */
 void QcSamUnlockWindow::lgSprintSimUnlock()
 {
-	connectPort(kPortTypeLaf);
+	if (!connectPort(kPortTypeLaf)) { return; }
 
-	if (!lafPort.isOpen()) { return; }
-
+	logAddEmptyLine();
 	log(kLogTypeInfo, "TASK: LG SPRINT SIM UNLOCK");
 	logAddEmptyLine();
 
+	lafPort.sendHello();
+	lafPort.enterLaf();
+
+	sleep(5000);
+
 	if (lafPort.sendCommand("id").find("root") != string::npos) {
+		lgGetDeviceInfo();
+
 		lafPort.sendCommand("mkdir carrier");
 		lafPort.sendCommand("mount -t ext4 /dev/block/bootdevice/by-name/carrier /carrier");
-		lafPort.sendCommand("mount -t ext4 /dev/block/msm_sdcc.1/by-name/carrier /carrier");
+		lafPort.sendCommand("mount -t ext4 /dev/block/platform/msm_sdcc.1/by-name/carrier /carrier");
 		lafPort.sendCommand("chown -R root:root /carrier");
 		lafPort.sendCommand("umount /carrier");
 		lafPort.sendCommand("sync");
+
+		log(kLogTypeInfo, "REBOOTING DEVICE");
+		logAddEmptyLine();
+
+		lafPort.sendReset();
 
 		log(kLogTypeInfo, "RESULT: SUCCESS");
 	}
@@ -848,6 +1058,7 @@ void QcSamUnlockWindow::lgSprintSimUnlock()
 	}
 
 	disconnectPort(kPortTypeLaf);
+	saveLog("LG SPRINT SIM UNLOCK");
 }
 
 /**
@@ -870,8 +1081,9 @@ void QcSamUnlockWindow::samsungSimUnlock()
 */
 
 void QcSamUnlockWindow::samsungEfsSimUnlock() {
-	connectPort(kPortTypeQcdm);
+	if (!connectPort(kPortTypeQcdm)) { return; }
 
+	logAddEmptyLine();
 	log(kLogTypeInfo, "TASK: SAMSUNG EFS SIM UNLOCK");
 	logAddEmptyLine();
 
@@ -949,6 +1161,187 @@ finish:
 }
 
 /**
+* @brief QcSamUnlockWindow::samsungUartReadInfo
+*/
+void QcSamUnlockWindow::samsungUartReadInfo()
+{
+	logAddEmptyLine();
+	log(kLogTypeInfo, "TASK: SAMSUNG UART READ INFO");
+	logAddEmptyLine();
+
+	QStringList commands = {
+		"AT+FACTOLOG=0,7,1,2",
+		"AT+VERSNAME=3,2,0",
+		"AT+SERIALNO=1,1",
+		"AT+WIFIIDRW=1,0",
+		"AT+IMEITEST=1,0",
+		"AT+IMEITEST=1,1",
+		"AT+MSLSECUR=1,0",
+		"AT+DEVROOTK=0,0,0",
+		"AT+IMEICERT=1,0",
+		"AT+IMEICERT=1,1",
+		"AT+IMEISIGN=1,1,0",
+		"AT+IMEISIGN=0,1,0",
+		"AT+REACTIVE=1,0,0",
+		"AT+SECUREBT=1,2,0",
+		"AT+LOCKREAD=1,0",
+		"AT+LOCKINFO=1,0,0",
+		"AT+LVFOLOCK=1,0",
+		"AT+LVFOLOCK=1,1",
+		"AT+SECUNBLOCK=1,0"
+	};
+
+	SerialAtCommandWorkerRequest request = {};
+	request.task = kSamsungUartTaskReadInfo;
+	request.commands = commands;
+
+	AtCommandRequest(request);
+}
+
+/**
+* @brief QcSamUnlockWindow::samsungUartReadSpc
+*/
+void QcSamUnlockWindow::samsungUartReadSpc()
+{
+	logAddEmptyLine();
+	log(kLogTypeInfo, "TASK: SAMSUNG UART READ MSL / SPC");
+	logAddEmptyLine();
+
+	QStringList commands = {
+		"AT+MEIDAUTH=0,0,2012112120131219",
+		"AT+MEIDAUTH=1,0,0"
+	};
+
+	SerialAtCommandWorkerRequest request = {};
+	request.task = kSamsungUartTaskReadSpc;
+	request.commands = commands;
+
+	AtCommandRequest(request);
+}
+
+/**
+* @brief QcSamUnlockWindow::samsungUartParseReadInfo
+*/
+void QcSamUnlockWindow::samsungUartParseReadInfo(QString command, QString output)
+{
+	if (output.contains("+VERSNAME:3")) {
+		QStringList lines = output.split(",");
+
+		for (int i = 1; i < 6; i++) {
+			switch (i) {
+			case 1:
+				log(kLogTypeDebug, "MODEL:         " + lines[i]);
+				break;
+			case 2:
+				log(kLogTypeDebug, "HW VERSION:    " + lines[i]);
+				break;
+			case 3:
+				log(kLogTypeDebug, "BUILD / SW:    " + lines[i]);
+				break;
+			case 4:
+				log(kLogTypeDebug, "BUILD / SW:    " + lines[i]);
+				break;
+			case 5:
+				log(kLogTypeDebug, "BASEBAND:      " + lines[i]);
+				break;
+			}
+		}
+
+		logAddEmptyLine();
+	}
+
+	if (output.contains("+SERIALNO:1")) {
+		log(kLogTypeDebug, "SERIAL NO:     " + output.split(",")[1]);
+	}
+
+	if (output.contains("+WIFIIDRW:")) {
+		log(kLogTypeDebug, "WIFI ID:       " + output.split(",")[1]);
+	}
+
+	if (command == "AT+IMEITEST=1,0"  && output.contains("+IMEITEST:1,")) {
+		log(kLogTypeDebug, output.split(",")[1].contains("NONE") ? "IMEI:          EMPTY" : "IMEI:          " + output.split(",")[1]);
+	}
+
+	if (command == "AT+IMEITEST=1,1"  && output.contains("+IMEITEST:1,")) {
+		log(kLogTypeDebug, output.split(",")[1].contains("NONE") ? "MEID:          EMPTY" : "MEID:          " + output.split(",")[1]);
+	}
+
+	if (output.contains("+IMEISIGN:1,")) {
+		log(kLogTypeDebug, "SKEY:          " + output.split(",")[1]);
+	}
+
+	if (output.contains("+IMEISIGN:0,")) {
+		log(kLogTypeDebug, "IMEI SIGN:     " + output.split(",")[1]);
+	}
+
+	if (output.contains("+MSLSECUR:1,")) {
+		log(kLogTypeDebug, "MSL ADDRESS:   " + output.split(",")[1]);
+	}
+
+	if (output.contains("+DEVROOTK:0,")) {
+		if (output.contains("NG") && output.contains("OK")) {
+			log(kLogTypeDebug, "DEVROOTKEY:    BAD - NEEDS REPAIR");
+		}
+		else if (output.contains("NG") && output.contains("ERROR")) {
+			log(kLogTypeDebug, "DEVROOTKEY:    NOT SUPPORTED");
+		}
+		else {
+			log(kLogTypeDebug, "DEVROOTKEY:    " + output.split(",")[1]);
+		}
+	}
+
+	if (command == "AT+IMEICERT=1,0"  && output.contains("+IMEICERT:1,")) {
+		log(kLogTypeDebug, output.split(",")[1].contains("NA") ? "IMEI CERT 1:   NOT SUPPORTED" : "IMEI CERT 1:   " + output.split(",")[1]);
+	}
+
+	if (command == "AT+IMEICERT=1,1"  && output.contains("+IMEICERT:1,")) {
+		log(kLogTypeDebug, output.split(",")[1].contains("NA") ? "IMEI CERT 2:   NOT SUPPORTED" : "IMEI CERT 1:   " + output.split(",")[1]);
+	}
+
+	if (output.contains("+REACTIVE:1,")) {
+		logAddEmptyLine();
+		log(kLogTypeDebug, output.split(",")[1].contains("NG") ? "REACTIVATION:  NOT SUPPORTED" : "REACTIVATION:  " + output.split(",")[1]);
+	}
+
+	if (output.contains("+SECUREBT:1,")) {
+		log(kLogTypeDebug, output.split(",")[1].contains("1") ? "KNOX WARRANTY: VOID" : "KNOX WARRANTY: INTACT");
+	}
+
+	if (output.contains("+LOCKREAD:1,")) {
+		if (output.contains("NA")) {
+			logAddEmptyLine();
+			log(kLogTypeDebug, "LOCK READ:     NOTHING FOUND");
+		}
+	}
+}
+
+
+
+/**
+* @brief QcSamUnlockWindow::~samsungUartPerformTask
+*/
+void QcSamUnlockWindow::samsungUartPerformTask()
+{
+	if (!connectPort(kPortTypeSerial)) { return; }
+
+	if (!samsungUartTestConnection()) {
+		logAddEmptyLine();
+		log(kLogTypeDebug, "UART CONNECTION FAIL");
+		disconnectPort(kPortTypeSerial);
+		return;
+	}
+
+	switch (ui->samsungUartTaskComboBox->currentIndex()) {
+		case kSamsungUartTaskReadInfo:
+			samsungUartReadInfo();
+			break;
+		case kSamsungUartTaskReadSpc:
+			samsungUartReadSpc();
+			break;
+	}
+}
+
+/**
 * @brief QcSamUnlockWindow::testSecurity
 */
 bool QcSamUnlockWindow::testSecurity()
@@ -979,6 +1372,55 @@ bool QcSamUnlockWindow::testSecurity()
 	return success;
 }
 
+void QcSamUnlockWindow::AtCommandRequest(SerialAtCommandWorkerRequest &request)
+{
+	serialAtCommandWorker = new SerialAtCommandWorker(serialPort, request, this);
+
+	connect(serialAtCommandWorker, &SerialAtCommandWorker::update, this, &QcSamUnlockWindow::AtCommandUpdate, Qt::QueuedConnection);
+	connect(serialAtCommandWorker, &SerialAtCommandWorker::complete, this, &QcSamUnlockWindow::AtCommandComplete);
+	connect(serialAtCommandWorker, &SerialAtCommandWorker::error, this, &QcSamUnlockWindow::AtCommandError);
+	connect(serialAtCommandWorker, &SerialAtCommandWorker::finished, serialAtCommandWorker, &QObject::deleteLater);
+
+	serialAtCommandWorker->start();
+}
+
+
+void QcSamUnlockWindow::AtCommandUpdate(SerialAtCommandWorkerResponse response)
+{
+	switch (response.task) {
+	case kSamsungUartTaskReadInfo:
+		samsungUartParseReadInfo(response.command, response.output);
+		break;
+	case kSamsungUartTaskReadSpc:
+		if (response.output.contains("+MEIDAUTH:1,")) {
+			log(kLogTypeDebug, "MSL / SPC: " + response.output.split(",")[1]);
+		}
+		break;
+	}
+}
+
+void QcSamUnlockWindow::AtCommandComplete(SerialAtCommandWorkerRequest request)
+{
+	serialAtCommandWorker = nullptr;
+
+	disconnectPort(kPortTypeSerial);
+
+	switch (request.task) {
+	case kSamsungUartTaskReadInfo:
+		saveLog("SAMSUNG UART READ INFO");
+		break;
+	case kSamsungUartTaskReadSpc:
+		saveLog("SAMSUNG UART READ MSL / SPC");
+		break;
+	}
+	
+}
+
+void QcSamUnlockWindow::AtCommandError(QString message)
+{
+	log(kLogTypeDebug, "ERROR");
+}
+
 /**
 * @brief QcSamUnlockWindow::clearLog
 */
@@ -992,15 +1434,23 @@ void QcSamUnlockWindow::clearLog()
 */
 void QcSamUnlockWindow::saveLog(QString task) 
 {
-	QString now = QDateTime::currentDateTime().toString(Qt::ISODate);
+	QString now = QDateTime::currentDateTime().toString("MM.dd.yy-hh.mm.ss ap");
 
-	log(kLogTypeInfo, QDir::currentPath() + "/log/" + now + "_" + task + ".pst");
+	QDir dir = QDir::currentPath() + QDir::separator() + "log" + QDir::separator() + task;
 
-	QFile file(QDir::currentPath() + "/log/" + now + "_" + task + ".pst");
-	if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+	if (!dir.exists()) {
+		dir.mkpath(".");
+	}
+
+	QFile file(dir.absolutePath() + QDir::separator() + now + "-openpst.log");
+
+	if (file.open(QIODevice::WriteOnly)) {
 		QTextStream stream(&file);
-		stream << now << endl;
 		stream << ui->log->toPlainText() << endl;
+	}
+	else {
+		logAddEmptyLine();
+		log(kLogTypeError, "LOG SAVE FAIL");
 	}
 }
 

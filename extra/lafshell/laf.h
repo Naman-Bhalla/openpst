@@ -5,6 +5,9 @@
 
 #define LAF_EXEC_MAGIC 0xBCBAA7BA
 #define LAF_CTRL_MAGIC 0xB3ADABBC
+#define LAF_INFO_MAGIC 0xB0B9B1B6
+
+#define LAF_INFO_SIZE 0x00000B08
 
 #define LAF_MAX_DATA_SIZE 1048578
 
@@ -26,8 +29,8 @@
 #define LAF_CMD_MISC    0x4353494D // MISC
 #define LAF_CMD_KILO    0x4F4C494B // KILO
 
-#define LAF_CMD_INFO_SPRO 0x4F525053 // ORPS
 #define LAF_CMD_INFO_GPRO 0x4F525047 // GPRO
+#define LAF_CMD_INFO_SPRO 0x4F525053 // SPRO
 
 #define LAF_CMD_CONTROL_POWER_OFF 0x46464F50 // POWER_OFF
 #define LAF_CMD_CONTROL_RESET     0x54455352 // RESET
@@ -38,6 +41,39 @@
 #define LAF_CMD_KILO_CENT 0x544E4543 // CENT
 
 #define LAF_MISC_PARITION_OFFSET(number) \ number << 9
+
+enum LafProperties
+{
+	LAF_PROP_AP_FACTORY_RESET_STATUS    = 0x4F0C,
+	LAF_PROP_BATTERY_LEVEL              = 0x420B,
+	LAF_PROP_BOOTLOADER_VERSION         = 0x390F,
+	LAF_PROP_CHIPSET_PLATFORM           = 0x430A,
+	LAF_PROP_CP_FACTORY_RESET_STATUS    = 0x5000,
+	LAF_PROP_CUPSS_SWFV                 = 0x6208, // ?
+	LAF_PROP_DEVICE_BUILD_TYPE          = 0x4300,
+	LAF_PROP_DEVICE_FACTORY_VERSION     = 0x240F,
+	LAF_PROP_DEVICE_FACTORY_OUT_VERSION = 0x5208,
+	LAF_PROP_DEVICE_SW_VERSION          = 0x140F,
+	LAF_PROP_DOWNLOAD_CABLE             = 0x3F09,
+	LAF_PROP_DOWNLOAD_SPEED             = 0x0201,
+	LAF_PROP_DOWNLOAD_SW_VERSION        = 0x0209,
+	LAF_PROP_DOWNLOAD_TYPE              = 0x0100,
+	LAF_PROP_HARDWARE_REVISION          = 0x4107,
+	LAF_PROP_IMEI                       = 0x3C7,
+	LAF_PROP_IS_DOWNLOAD_NOT_FINISHED   = 0x5004,
+	LAF_PROP_IS_ONE_BINARY_DUAL_PLAN    = 0x7208, // ?
+	LAF_PROP_LAF_SW_VERSION             = 0x4E08,
+	LAF_PROP_MEMORY_ID                  = 0x7300,
+	LAF_PROP_MEMORY_SIZE                = 0x720C,
+	LAF_PROP_MODEL_NAME                 = 0x1301,
+	LAF_PROP_PID                        = 0x3D0B,
+	LAF_PROP_QEM                        = 0x5008,
+	LAF_PROP_SECURE_DEVICE              = 0x420F,
+	LAF_PROP_TARGET_COUNTRY             = 0x4602,
+	LAF_PROP_TARGET_OPERATOR            = 0x440E,
+	LAF_PROP_USB_VERSION                = 0x4003,
+};
+
 /**
 * This functionality is part of the laf kernel image in the / sbin / lafd binary file
 * 

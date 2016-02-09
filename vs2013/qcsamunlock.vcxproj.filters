@@ -74,6 +74,15 @@
     <ClCompile Include="Release\moc_qcsamunlock_window.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\worker\serial_at_command_worker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_serial_at_command_worker.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_serial_at_command_worker.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\src\gui\about_dialog.h">
@@ -86,6 +95,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <CustomBuild Include="..\src\gui\qcsamunlock_window.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\src\worker\serial_at_command_worker.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
